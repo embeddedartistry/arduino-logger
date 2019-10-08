@@ -1,11 +1,11 @@
-project('Flex Message Decoder',
+project('Arduino SDK Logger',
 	['c', 'cpp'],
 	default_options : [
 		# `build.*` options affect `native: true targets`
 		# plain options affect `native: false` targets.
-		'c_std=c99', 'build.c_std=c99',
+		'cpp_std=c++11', 'build.cpp_std=c++11'
 	],
-	license: 'MIT',
+	license: 'GPL v3',
 	meson_version: '>0.51.0',
 	version: '0.9')
 
@@ -16,11 +16,9 @@ project('Flex Message Decoder',
 # Identify compilers & get flags
 subdir('build/compiler')
 
-native_compiler = meson.get_compiler('c', native: true)
-host_compiler = meson.get_compiler('c')
+native_compiler = meson.get_compiler('cpp', native: true)
+host_compiler = meson.get_compiler('cpp')
 
-add_project_arguments(native_compiler_warnings, language: 'c', native: true)
-add_project_arguments(target_compiler_warnings, language: 'c', native: false)
 add_project_arguments(native_cpp_compiler_warnings, language: 'cpp', native: true)
 add_project_arguments(target_cpp_compiler_warnings, language: 'cpp', native: false)
 
@@ -29,28 +27,40 @@ add_project_arguments(target_cpp_compiler_warnings, language: 'cpp', native: fal
 #########################
 
 if get_option('enable-werror') == true
-	add_project_arguments('-Werror', language : ['c', 'cpp'])
+	add_project_arguments('-Werror', language : ['cpp'])
 endif
 
 if get_option('enable-pedantic-error') == true
-	add_project_arguments('-pedantic-error', language : ['c', 'cpp'])
+	add_project_arguments('-pedantic-error', language : ['cpp'])
 endif
 
-##########################
-# Determine Architecture #
-##########################
-
-subdir('build/architecture')
 
 #######################
 # Process source tree #
 #######################
 
 # Library build definition
-subdir('src/')
 
-# Test build definition
-subdir('test/')
+libarduinologger = static_library('arduino_logger',
+    'ArduinoLogger.cpp',
+)
+
+test_includes = include_directories('test/')
+
+logging_tests = executable('arduino_logger_tests',
+	[
+		files('test/ArduinoLoggerTests.cpp'),
+		files('test/catch_main.cpp'),
+	],
+	link_with: libarduinologger,
+	include_directories: [
+		include_directories('test/'),
+	],
+	cpp_args: '-DCATCH_CONFIG_FAST_COMPILE',
+)
+
+test('ArduinoLogger_tests',
+	logging_tests)
 
 ############################
 # Supporting Build Targets #
@@ -93,5 +103,5 @@ if clangtidy.found()
             # Header Filter
             '.*',
             #Finish with files
-        ] + flex_files)
+        ] + [files('ArduinoLogger.cpp')])
 endif
