@@ -2,7 +2,6 @@
 #define ARDUINO_LOGGER_H_
 
 #include "_log_common_defs.h"
-#include <string>
 #include <printf.h>
 
 enum log_level_e
