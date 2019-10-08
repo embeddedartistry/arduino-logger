@@ -3,14 +3,14 @@
 
 #include "_log_common_defs.h"
 #include <string>
-#include "ArduinoPrintf.h" // for definition of _putchar, fctprintf
+#include <printf.h>
 
 enum log_level_e
 {
 	off = LOG_LEVEL_OFF,
 	critical = LOG_LEVEL_CRITICAL,
 	error = LOG_LEVEL_ERROR,
-	warn = LOG_LEVEL_WARNING,
+	warning = LOG_LEVEL_WARNING,
 	info = LOG_LEVEL_INFO,
 	debug = LOG_LEVEL_DEBUG,
 };
@@ -293,12 +293,12 @@ class PlatformLogger_t
 #define logcerror(...)
 #endif
 
-#if LOG_LEVEL >= LOG_LEVEL_WARN
-#ifndef logwarn
-#define logwarn(...) PlatformLogger::inst().log(log_level_e::warn, __VA_ARGS__)
+#if LOG_LEVEL >= LOG_LEVEL_WARNING
+#ifndef logwarning
+#define logwarning(...) PlatformLogger::inst().log(log_level_e::warning, __VA_ARGS__)
 #endif
 #else
-#define logwarn(...)
+#define logwarning(...)
 #endif
 
 #if LOG_LEVEL >= LOG_LEVEL_INFO

@@ -59,7 +59,7 @@
 /// Users can override these default short names with a compiler definition
 #define LOG_LEVEL_SHORT_NAMES                                                             \
 	{                                                                                     \
-		"Off", LOG_LEVEL_CRITICAL_PREFIX, LOG_LEVEL_ERROR_PREFIX, LOG_LEVEL_WARNING_PREFIX, \
+		"O", LOG_LEVEL_CRITICAL_PREFIX, LOG_LEVEL_ERROR_PREFIX, LOG_LEVEL_WARNING_PREFIX, \
 			LOG_LEVEL_INFO_PREFIX, LOG_LEVEL_DEBUG_PREFIX,						          \
 	}
 #endif
