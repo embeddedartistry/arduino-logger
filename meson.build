@@ -5,7 +5,7 @@ project('Arduino SDK Logger',
 		# plain options affect `native: false` targets.
 		'cpp_std=c++11', 'build.cpp_std=c++11'
 	],
-	license: 'GPL v3',
+	license: 'MIT',
 	meson_version: '>0.51.0',
 	version: '0.9')
 
