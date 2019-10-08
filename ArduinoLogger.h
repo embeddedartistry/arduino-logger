@@ -1,0 +1,4 @@
+#ifndef ARDUINO_LOGGER_H_
+#define ARDUINO_LOGGER_H_
+
+#endif //ARDUINO_LOGGER_H_
