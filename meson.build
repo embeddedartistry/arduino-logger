@@ -41,22 +41,21 @@ endif
 
 # Library build definition
 
-libarduinologger = static_library('arduino_logger',
-    'ArduinoLogger.cpp',
-)
-
 test_includes = include_directories('test/')
 
 logging_tests = executable('arduino_logger_tests',
 	[
+		files('ArduinoLogger.cpp'),
 		files('test/ArduinoLoggerTests.cpp'),
 		files('test/catch_main.cpp'),
+		files('test/printf.c'),
 	],
-	link_with: libarduinologger,
 	include_directories: [
 		include_directories('test/'),
 	],
-	cpp_args: '-DCATCH_CONFIG_FAST_COMPILE',
+	cpp_args: [
+		'-DCATCH_CONFIG_FAST_COMPILE',
+	]
 )
 
 test('ArduinoLogger_tests',
