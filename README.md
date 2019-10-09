@@ -48,7 +48,7 @@ When a log level is set during run-time, log statements lower in priority will r
 
 ## Using the Library
 
-To use this library, you will need to [create a header which selects or defines a logging strategy](#selecting a logging strategy). This header should be included in your application.
+To use this library, you will need to [create a header which selects or defines a logging strategy](#selecting-a-logging-strategy). This header must be included in your application.
 
 To interact with the logger, use the following macros to ensure you are accessing the same static logger instance:
 
