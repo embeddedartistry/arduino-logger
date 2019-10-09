@@ -4,12 +4,13 @@ static int iterations = 0;
 
 void setup() {
   Serial.begin(115200);
-  logdebug("This line is added to the log buffer from setup\n");
+  logdebug("This line will NOT be added to the log buffer because the minimum level is INFO\n");
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   loginfo("Loop iteration %d\n", iterations);
+  logdebug("This line is ignored\n");
   iterations++;
 
   if((iterations % 10) == 0)
