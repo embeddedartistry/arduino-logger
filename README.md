@@ -215,6 +215,8 @@ logecho(true); // enables echoing via printf()
 
 ## Creating a Custom Logging Strategy
 
+TODO
+
 ## Tests
 
 Some classes have the ability to be used on a host machine outside of the Arduino SDK.
