@@ -1,8 +1,71 @@
 #ifndef ARDUINO_LOGGER_H_
 #define ARDUINO_LOGGER_H_
 
-#include "_log_common_defs.h"
 #include <printf.h>
+
+/// Logging is disabled
+#define LOG_LEVEL_OFF 0
+/// Indicates the system is unusable, or an error that is unrecoverable
+#define LOG_LEVEL_CRITICAL 1
+/// Indicates an error condition
+#define LOG_LEVEL_ERROR 2
+/// Indicates a warning condition
+#define LOG_LEVEL_WARNING 3
+/// Informational messages
+#define LOG_LEVEL_INFO 4
+/// Debug-level messages
+#define LOG_LEVEL_DEBUG 5
+/// The maximum log level that can be set
+#define LOG_LEVEL_MAX LOG_LEVEL_DEBUG
+/// The number of possible log levels
+#define LOG_LEVEL_COUNT (LOG_LEVEL_MAX + 1)
+
+#define LOG_LEVEL_CRITICAL_PREFIX "!"
+#define LOG_LEVEL_ERROR_PREFIX "E"
+#define LOG_LEVEL_WARNING_PREFIX "W"
+#define LOG_LEVEL_INFO_PREFIX "I"
+#define LOG_LEVEL_DEBUG_PREFIX "D"
+#define LOG_LEVEL_INTERRUPT_PREFIX "int"
+
+// Supply a default log level
+#ifndef LOG_LEVEL
+/** Default maximum log level.
+ *
+ * This is the maximum log level that will be compiled in.
+ * To set a custom log level, define the LOG_LEVEL before including this header
+ * (e.g., as a compiler definition)
+ */
+#define LOG_LEVEL LOG_LEVEL_DEBUG
+#endif
+
+#ifndef LOG_EN_DEFAULT
+/// Whether the logging module is enabled automatically on boot.
+#define LOG_EN_DEFAULT true
+#endif
+
+#ifndef LOG_ECHO_EN_DEFAULT
+/// Indicates that log statements should be echoed to the console
+/// If true, log statements will be echoed.
+/// If false, log statements will only go to the log.
+#define LOG_ECHO_EN_DEFAULT false
+#endif
+
+#ifndef LOG_LEVEL_NAMES
+/// Users can override these default names with a compiler definition
+#define LOG_LEVEL_NAMES                                                   \
+	{                                                                     \
+		"off", "critical", "error", "warning", "info", "debug", 		  \
+	}
+#endif
+
+#ifndef LOG_LEVEL_SHORT_NAMES
+/// Users can override these default short names with a compiler definition
+#define LOG_LEVEL_SHORT_NAMES                                                             \
+	{                                                                                     \
+		"O", LOG_LEVEL_CRITICAL_PREFIX, LOG_LEVEL_ERROR_PREFIX, LOG_LEVEL_WARNING_PREFIX, \
+			LOG_LEVEL_INFO_PREFIX, LOG_LEVEL_DEBUG_PREFIX,						          \
+	}
+#endif
 
 enum log_level_e
 {
@@ -14,20 +77,25 @@ enum log_level_e
 	debug = LOG_LEVEL_DEBUG,
 };
 
+class logNames
+{
+public:
+	constexpr static const char* level_short_names[LOG_LEVEL_COUNT] = LOG_LEVEL_SHORT_NAMES;
+	constexpr static const char* level_string_names[LOG_LEVEL_COUNT] = LOG_LEVEL_NAMES;
+};
+
 constexpr log_level_e LOG_LEVEL_LIMIT() {
 	return static_cast<log_level_e>(LOG_LEVEL);
 }
 
 constexpr const char* LOG_LEVEL_TO_C_STRING(log_level_e level)
 {
-	constexpr const char* level_string_names[] = LOG_LEVEL_NAMES;
-	return level_string_names[level];
+	return logNames::level_string_names[level];
 }
 
 constexpr const char* LOG_LEVEL_TO_SHORT_C_STRING(log_level_e level)
 {
-	constexpr const char* level_short_names[] = LOG_LEVEL_SHORT_NAMES;
-	return level_short_names[level];
+	return logNames::level_short_names[level];
 }
 
 class LoggerBase
@@ -90,7 +158,7 @@ public:
 
 	/** Set the maximum log level (filtering)
 	 *
-	 * @param l The maximum log level. Levels grater than `l` will not be added to the log buffer.
+	 * @param l The maximum log level. Levels greater than `l` will not be added to the log buffer.
 	 * @returns the current log level maximum.
 	 */
 	log_level_e level(log_level_e l) noexcept
@@ -149,14 +217,17 @@ public:
 
 
 
-	/** Print the contents of the log buffer in the console.
+	/** Print the buffered log contents to the target output stream
 	 *
-	 * When called, the contents of the log buffer will be echo'd to the console through printf.
-	 * The entire log buffer will be displayed.
+	 * When called, the contents of the log buffer will be removed and placed into
+	 * the target output stream.
+	 *
+	 * Outputs can be any target. You will notice many example implementations print
+	 * the log buffer contents to Serial when flush() is called.
 	 *
 	 * Derived classes must implement this function.
 	 */
-	virtual void dump() noexcept = 0;
+	virtual void flush() noexcept = 0;
 
 	/** Clear the contents of the log buffer.
 	 *
@@ -271,11 +342,6 @@ class PlatformLogger_t
  * @{
  */
 
-// Supply a default log level
-#ifndef LOG_LEVEL
-#define LOG_LEVEL LOG_LEVEL_WARN
-#endif
-
 #if LOG_LEVEL >= LOG_LEVEL_CRITICAL
 #ifndef logcritical
 #define logcritical(...) PlatformLogger::inst().log(log_level_e::critical, __VA_ARGS__)
@@ -289,7 +355,7 @@ class PlatformLogger_t
 #define logerror(...) PlatformLogger::inst().log(log_level_e::error, __VA_ARGS__)
 #endif
 #else
-#define logcerror(...)
+#define logerror(...)
 #endif
 
 #if LOG_LEVEL >= LOG_LEVEL_WARNING
@@ -316,12 +382,9 @@ class PlatformLogger_t
 #define logdebug(...)
 #endif
 
-#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
-#ifndef logverbose
-#define logverbose(...) PlatformLogger::inst().log(log_level_e::verbose, __VA_ARGS__)
-#endif
-#else
-#define logverbose(...)
-#endif
+#define logflush() PlatformLogger::inst().flush();
+#define loglevel(lvl) PlatformLogger::inst().level(lvl);
+#define logecho(echo) PlatformLogger::inst().echo(lvl);
+#define logclear() PlatformLogger::inst().clear();
 
 #endif //ARDUINO_LOGGER_H_

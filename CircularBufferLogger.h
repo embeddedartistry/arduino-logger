@@ -2,7 +2,7 @@
 #define CIRCULAR_BUFFER_LOGGER_H_
 
 #include "ArduinoLogger.h"
-#include "ring_span.hpp"
+#include "internal/ring_span.hpp"
 
 /** Circular log buffer
  *
@@ -57,11 +57,11 @@ class CircularLogBufferLogger final : public LoggerBase
 		return log_buffer_.capacity();
 	}
 
-	void dump() noexcept final
+	void flush() noexcept final
 	{
-		for(const auto& t : log_buffer_)
+		while(!log_buffer_.empty())
 		{
-			_putchar(t);
+			_putchar(log_buffer_.pop_front());
 		}
 	}
 
