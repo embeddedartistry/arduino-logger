@@ -55,6 +55,7 @@ To interact with the logger, use the following macros to ensure you are accessin
 * `logdebug()`
 * `loginfo()`
 * `logwarning()`
+* `logerror()`
 * `logcritical()`
 
 These macros accept `printf`-like format strings. All `printf` format codes are supported:
