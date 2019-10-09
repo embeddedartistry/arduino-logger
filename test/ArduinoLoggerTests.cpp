@@ -30,7 +30,7 @@ TEST_CASE("Create a logger with a system timer", "[ArduinoLoggerg]")
 
 	CHECK(l_notimer.size() == 16);
 
-	l_notimer.dump();
+	l_notimer.flush();
 
 	CHECK(log_buffer_output == std::string_view("<D> Hello world\n"));
 }
