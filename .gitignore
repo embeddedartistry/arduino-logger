@@ -1,6 +1,9 @@
 # Generated files
 buildresults/**
 
+# Sublime Files
+*.sublime*
+
 # Prerequisites
 *.d
 
