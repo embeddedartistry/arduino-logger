@@ -39,23 +39,19 @@ endif
 # Process source tree #
 #######################
 
-# Library build definition
-
-test_includes = include_directories('test/')
+test_includes = [
+	include_directories('test'),
+	include_directories('src'),
+]
 
 logging_tests = executable('arduino_logger_tests',
 	[
-		files('ArduinoLogger.cpp'),
+		files('src/ArduinoLogger.cpp'),
 		files('test/ArduinoLoggerTests.cpp'),
 		files('test/catch_main.cpp'),
 		files('test/printf.c'),
 	],
-	include_directories: [
-		include_directories('test/'),
-	],
-	cpp_args: [
-		'-DCATCH_CONFIG_FAST_COMPILE',
-	]
+	include_directories: test_includes,
 )
 
 test('ArduinoLogger_tests',
@@ -102,5 +98,5 @@ if clangtidy.found()
             # Header Filter
             '.*',
             #Finish with files
-        ] + [files('ArduinoLogger.cpp')])
+        ] + [files('src/ArduinoLogger.cpp')])
 endif

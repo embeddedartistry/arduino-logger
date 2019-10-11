@@ -1,6 +1,12 @@
 #include <catch.hpp>
-#include "CircularBufferLogger.h"
+#include <CircularBufferLogger.h>
 #include <string>
+
+// TODO: Refactor all the expected length calls to use this prefix length, and fix
+// the strings so we can use strlen or size (std::string prob better).
+
+constexpr size_t prefix_len = 4;
+constexpr size_t int_prefix_len = 4;
 
 std::string log_buffer_output;
 
@@ -39,16 +45,16 @@ TEST_CASE("Log interface", "[ArduinoLoggerg]")
 {
 	CircularLogBufferLogger<1024> l;
 
-	// We can log slightly more data than the string length
 	auto expected_size = strlen("Test str") + 1;
-	l.log(log_level_e::warning, "Test str");
+	l.warning("Test str");
 	CHECK(expected_size <= l.size());
 
+	// Change level so debug statements should be ignored
 	l.level(log_level_e::warning);
 
 	// Logging at an unsupported level should result in no size change
 	expected_size = l.size();
-	l.log(log_level_e::debug, "Gotcha");
+	l.debug("Gotcha");
 	CHECK(expected_size == l.size());
 }
 

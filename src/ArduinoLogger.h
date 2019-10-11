@@ -2,6 +2,7 @@
 #define ARDUINO_LOGGER_H_
 
 #include <printf.h>
+#include <utility>
 
 /// Logging is disabled
 #define LOG_LEVEL_OFF 0
@@ -171,6 +172,36 @@ public:
 		return level_;
 	}
 
+	template<typename... Args>
+	void critical(const char* fmt, const Args&... args)
+	{
+		log(log_level_e::critical, fmt, std::forward<Args>(args)...);
+	}
+
+	template<typename... Args>
+	void error(const char* fmt, const Args&... args)
+	{
+		log(log_level_e::error, fmt, std::forward<Args>(args)...);
+	}
+
+	template<typename... Args>
+	void warning(const char* fmt, const Args&... args)
+	{
+		log(log_level_e::warning, fmt, std::forward<Args>(args)...);
+	}
+
+	template<typename... Args>
+	void info(const char* fmt, const Args&... args)
+	{
+		log(log_level_e::info, fmt, std::forward<Args>(args)...);
+	}
+
+	template<typename... Args>
+	void debug(const char* fmt, const Args&... args)
+	{
+		log(log_level_e::debug, fmt, std::forward<Args>(args)...);
+	}
+
 	/** Add data to the log buffer
 	 *
 	 * @tparam Args Variadic template args. Will be deduced by the compiler. Enables support for
@@ -185,6 +216,7 @@ public:
 		if(enabled_ && l <= level_)
 		{
 			// TODO: timestamp
+			// TODO: put a formatter here?
 #if 0
 			if(system_clock_)
 			{
@@ -214,8 +246,6 @@ public:
 			}
 		}
 	}
-
-
 
 	/** Print the buffered log contents to the target output stream
 	 *
@@ -328,6 +358,36 @@ class PlatformLogger_t
 	{
 		static TLogger logger_;
 		return logger_;
+	}
+
+	template<typename... Args>
+	inline static void critical(const char* fmt, const Args&... args)
+	{
+		inst().critical(fmt, std::forward<Args>(args)...);
+	}
+
+	template<typename... Args>
+	inline static void error(const char* fmt, const Args&... args)
+	{
+		inst().error(fmt, std::forward<Args>(args)...);
+	}
+
+	template<typename... Args>
+	inline static void warning(const char* fmt, const Args&... args)
+	{
+		inst().warning(fmt, std::forward<Args>(args)...);
+	}
+
+	template<typename... Args>
+	inline static void info(const char* fmt, const Args&... args)
+	{
+		inst().info(fmt, std::forward<Args>(args)...);
+	}
+
+	template<typename... Args>
+	inline static void debug(const char* fmt, const Args&... args)
+	{
+		inst().debug(fmt, std::forward<Args>(args)...);
 	}
 };
 
