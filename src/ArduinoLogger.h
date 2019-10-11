@@ -21,12 +21,12 @@
 /// The number of possible log levels
 #define LOG_LEVEL_COUNT (LOG_LEVEL_MAX + 1)
 
-#define LOG_LEVEL_CRITICAL_PREFIX "!"
-#define LOG_LEVEL_ERROR_PREFIX "E"
-#define LOG_LEVEL_WARNING_PREFIX "W"
-#define LOG_LEVEL_INFO_PREFIX "I"
-#define LOG_LEVEL_DEBUG_PREFIX "D"
-#define LOG_LEVEL_INTERRUPT_PREFIX "int"
+#define LOG_LEVEL_CRITICAL_PREFIX "<!> "
+#define LOG_LEVEL_ERROR_PREFIX "<E> "
+#define LOG_LEVEL_WARNING_PREFIX "<W> "
+#define LOG_LEVEL_INFO_PREFIX "<I> "
+#define LOG_LEVEL_DEBUG_PREFIX "<D> "
+#define LOG_LEVEL_INTERRUPT_PREFIX "<int> "
 
 // Supply a default log level
 #ifndef LOG_LEVEL
@@ -175,31 +175,31 @@ public:
 	template<typename... Args>
 	void critical(const char* fmt, const Args&... args)
 	{
-		log(log_level_e::critical, fmt, std::forward<Args>(args)...);
+		log(log_level_e::critical, fmt, std::forward<const Args>(args)...);
 	}
 
 	template<typename... Args>
 	void error(const char* fmt, const Args&... args)
 	{
-		log(log_level_e::error, fmt, std::forward<Args>(args)...);
+		log(log_level_e::error, fmt, std::forward<const Args>(args)...);
 	}
 
 	template<typename... Args>
 	void warning(const char* fmt, const Args&... args)
 	{
-		log(log_level_e::warning, fmt, std::forward<Args>(args)...);
+		log(log_level_e::warning, fmt, std::forward<const Args>(args)...);
 	}
 
 	template<typename... Args>
 	void info(const char* fmt, const Args&... args)
 	{
-		log(log_level_e::info, fmt, std::forward<Args>(args)...);
+		log(log_level_e::info, fmt, std::forward<const Args>(args)...);
 	}
 
 	template<typename... Args>
 	void debug(const char* fmt, const Args&... args)
 	{
-		log(log_level_e::debug, fmt, std::forward<Args>(args)...);
+		log(log_level_e::debug, fmt, std::forward<const Args>(args)...);
 	}
 
 	/** Add data to the log buffer
@@ -225,7 +225,7 @@ public:
 #endif
 
 			// Add our prefix
-			fctprintf(&LoggerBase::log_putc_bounce, this, "<%s> ", LOG_LEVEL_TO_SHORT_C_STRING(l));
+			fctprintf(&LoggerBase::log_putc_bounce, this, "%s", LOG_LEVEL_TO_SHORT_C_STRING(l));
 
 			// Send the primary log statement
 			fctprintf(&LoggerBase::log_putc_bounce, this, fmt, args...);
@@ -363,31 +363,31 @@ class PlatformLogger_t
 	template<typename... Args>
 	inline static void critical(const char* fmt, const Args&... args)
 	{
-		inst().critical(fmt, std::forward<Args>(args)...);
+		inst().critical(fmt, std::forward<const Args>(args)...);
 	}
 
 	template<typename... Args>
 	inline static void error(const char* fmt, const Args&... args)
 	{
-		inst().error(fmt, std::forward<Args>(args)...);
+		inst().error(fmt, std::forward<const Args>(args)...);
 	}
 
 	template<typename... Args>
 	inline static void warning(const char* fmt, const Args&... args)
 	{
-		inst().warning(fmt, std::forward<Args>(args)...);
+		inst().warning(fmt, std::forward<const Args>(args)...);
 	}
 
 	template<typename... Args>
 	inline static void info(const char* fmt, const Args&... args)
 	{
-		inst().info(fmt, std::forward<Args>(args)...);
+		inst().info(fmt, std::forward<const Args>(args)...);
 	}
 
 	template<typename... Args>
 	inline static void debug(const char* fmt, const Args&... args)
 	{
-		inst().debug(fmt, std::forward<Args>(args)...);
+		inst().debug(fmt, std::forward<const Args>(args)...);
 	}
 };
 

@@ -47,7 +47,7 @@ test_includes = [
 logging_tests = executable('arduino_logger_tests',
 	[
 		files('src/ArduinoLogger.cpp'),
-		files('test/ArduinoLoggerTests.cpp'),
+		files('test/CircularBufferLoggerTests.cpp'),
 		files('test/catch_main.cpp'),
 		files('test/printf.c'),
 	],
