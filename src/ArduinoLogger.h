@@ -240,6 +240,13 @@ class LoggerBase
 		log(log_level_e::debug, fmt, std::forward<const Args>(args)...);
 	}
 
+	/// Prints directly to the log with no extra characters added to the message.
+	template<typename... Args>
+	void print(const Args&... args) noexcept
+	{
+		fctprintf(&LoggerBase::log_putc_bounce, this, args...);
+	}
+
 	/** Add data to the log buffer
 	 *
 	 * @tparam Args Variadic template args. Will be deduced by the compiler. Enables support for
@@ -253,30 +260,16 @@ class LoggerBase
 	{
 		if(enabled_ && l <= level_)
 		{
-			// TODO: timestamp
-			// TODO: put a formatter here?
-#if 0
-			if(system_clock_)
-			{
-				fctprintf(&LoggerBase::log_putc_bounce, this, "[%llu] ", system_clock_->ticks());
-			}
-#endif
-
 			// Add our prefix
-			fctprintf(&LoggerBase::log_putc_bounce, this, "%s", LOG_LEVEL_TO_SHORT_C_STRING(l));
+			print("%s", LOG_LEVEL_TO_SHORT_C_STRING(l));
+
+			log_customprefix();
 
 			// Send the primary log statement
-			fctprintf(&LoggerBase::log_putc_bounce, this, fmt, args...);
+			print(fmt, args...);
 
 			if(echo_)
 			{
-				// TODO: timestamp
-#if 0
-				if(system_clock_)
-				{
-					printf("[%llu] ", system_clock_->ticks());
-				}
-#endif
 				printf("<%s> ", LOG_LEVEL_TO_SHORT_C_STRING(l));
 
 				// cppcheck-suppress wrongPrintfScanfArgNum
@@ -326,6 +319,19 @@ class LoggerBase
 
 	/// Default destructor
 	virtual ~LoggerBase() = default;
+
+	/** Add a custom prefix to the log file
+	 *
+	 * Define this function in your derived class to supply a custom prefix
+	 * to the log statement. This will appear *after* the log level indicator
+	 * (e.g., <!>), but before the message.
+	 *
+	 * Recommended use of this field might include generating a timestamp:
+	 *	<!> [0081838ms] Message goes here.
+	 *
+	 * Derived classes must implement this function.
+	 */
+	virtual void log_customprefix() {}
 
 	/** Log buffer putc function
 	 *
@@ -427,6 +433,26 @@ class PlatformLogger_t
 	{
 		inst().debug(fmt, std::forward<const Args>(args)...);
 	}
+
+	inline static void flush()
+	{
+		inst().flush();
+	}
+
+	inline static void clear()
+	{
+		inst().clear();
+	}
+
+	inline static log_level_e level(log_level_e l)
+	{
+		inst().level(l);
+	}
+
+	inline static bool echo(bool en)
+	{
+		inst().echo(en);
+	}
 };
 
 /** @name Logging Macros
@@ -442,7 +468,7 @@ class PlatformLogger_t
 
 #if LOG_LEVEL >= LOG_LEVEL_CRITICAL
 #ifndef logcritical
-#define logcritical(...) PlatformLogger::inst().log(log_level_e::critical, __VA_ARGS__)
+#define logcritical(...) PlatformLogger::critical(__VA_ARGS__)
 #endif
 #else
 #define logcritical(...)
@@ -450,7 +476,7 @@ class PlatformLogger_t
 
 #if LOG_LEVEL >= LOG_LEVEL_ERROR
 #ifndef logerror
-#define logerror(...) PlatformLogger::inst().log(log_level_e::error, __VA_ARGS__)
+#define logerror(...) PlatformLogger::error(__VA_ARGS__)
 #endif
 #else
 #define logerror(...)
@@ -458,7 +484,7 @@ class PlatformLogger_t
 
 #if LOG_LEVEL >= LOG_LEVEL_WARNING
 #ifndef logwarning
-#define logwarning(...) PlatformLogger::inst().log(log_level_e::warning, __VA_ARGS__)
+#define logwarning(...) PlatformLogger::warning(__VA_ARGS__)
 #endif
 #else
 #define logwarning(...)
@@ -466,7 +492,7 @@ class PlatformLogger_t
 
 #if LOG_LEVEL >= LOG_LEVEL_INFO
 #ifndef loginfo
-#define loginfo(...) PlatformLogger::inst().log(log_level_e::info, __VA_ARGS__)
+#define loginfo(...) PlatformLogger::info(__VA_ARGS__)
 #endif
 #else
 #define loginfo(...)
@@ -474,15 +500,15 @@ class PlatformLogger_t
 
 #if LOG_LEVEL >= LOG_LEVEL_DEBUG
 #ifndef logdebug
-#define logdebug(...) PlatformLogger::inst().log(log_level_e::debug, __VA_ARGS__)
+#define logdebug(...) PlatformLogger::debug(__VA_ARGS__)
 #endif
 #else
 #define logdebug(...)
 #endif
 
-#define logflush() PlatformLogger::inst().flush();
-#define loglevel(lvl) PlatformLogger::inst().level(lvl);
-#define logecho(echo) PlatformLogger::inst().echo(lvl);
-#define logclear() PlatformLogger::inst().clear();
+#define logflush() PlatformLogger::flush();
+#define loglevel(lvl) PlatformLogger::level(lvl);
+#define logecho(echo) PlatformLogger::echo(lvl);
+#define logclear() PlatformLogger::clear();
 
 #endif // ARDUINO_LOGGER_H_
