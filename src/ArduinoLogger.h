@@ -245,6 +245,12 @@ class LoggerBase
 	void print(const Args&... args) noexcept
 	{
 		fctprintf(&LoggerBase::log_putc_bounce, this, args...);
+
+		if(echo_)
+		{
+			// cppcheck-suppress wrongPrintfScanfArgNum
+			printf(args...);
+		}
 	}
 
 	/** Add data to the log buffer
@@ -267,14 +273,6 @@ class LoggerBase
 
 			// Send the primary log statement
 			print(fmt, args...);
-
-			if(echo_)
-			{
-				printf("<%s> ", LOG_LEVEL_TO_SHORT_C_STRING(l));
-
-				// cppcheck-suppress wrongPrintfScanfArgNum
-				printf("%s", fmt, args...);
-			}
 		}
 	}
 
