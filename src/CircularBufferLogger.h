@@ -84,4 +84,4 @@ class CircularLogBufferLogger final : public LoggerBase
 	stdext::ring_span<char> log_buffer_{buffer_, buffer_ + TBufferSize};
 };
 
-#endif //CIRCULAR_BUFFER_LOGGER_H_
+#endif // CIRCULAR_BUFFER_LOGGER_H_

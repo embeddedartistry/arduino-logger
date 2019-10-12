@@ -27,8 +27,7 @@ class AVRCircularLogBufferLogger final : public LoggerBase
 {
   public:
 	/// Default constructor
-	AVRCircularLogBufferLogger() : LoggerBase() {
-	}
+	AVRCircularLogBufferLogger() : LoggerBase() {}
 
 	/** Initialize the circular log buffer with options
 	 *
@@ -40,7 +39,7 @@ class AVRCircularLogBufferLogger final : public LoggerBase
 	 * If false, log statements will only be added to the log buffer.
 	 */
 	explicit AVRCircularLogBufferLogger(bool enable, log_level_e l = LOG_LEVEL_LIMIT(),
-									 bool echo = LOG_ECHO_EN_DEFAULT) noexcept
+										bool echo = LOG_ECHO_EN_DEFAULT) noexcept
 		: LoggerBase(enable, l, echo)
 	{
 	}
@@ -82,4 +81,4 @@ class AVRCircularLogBufferLogger final : public LoggerBase
 	Queue<char> log_buffer_{TBufferSize};
 };
 
-#endif //AVR_CIRCULAR_BUFFER_LOGGER_H_
+#endif // AVR_CIRCULAR_BUFFER_LOGGER_H_
