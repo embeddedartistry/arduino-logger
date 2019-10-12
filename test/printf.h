@@ -40,7 +40,6 @@
 extern "C" {
 #endif
 
-
 /**
  * Output a character to a custom device like UART, used by the printf() function
  * This function is declared here only. You have to write your custom implementation somewhere
@@ -54,14 +53,13 @@ void _putchar(char character);
  * \param out An output function which takes one character and an argument pointer
  * \param arg An argument pointer for user data passed to output function
  * \param format A string that specifies the format of the output
- * \return The number of characters that are sent to the output function, not counting the terminating null character
+ * \return The number of characters that are sent to the output function, not counting the
+ * terminating null character
  */
 int fctprintf(void (*out)(char character, void* arg), void* arg, const char* format, ...);
-
 
 #ifdef __cplusplus
 }
 #endif
 
-
-#endif  // _PRINTF_H_
+#endif // _PRINTF_H_
