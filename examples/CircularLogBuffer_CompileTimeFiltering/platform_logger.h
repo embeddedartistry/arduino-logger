@@ -5,7 +5,6 @@
 #define LOG_LEVEL LOG_LEVEL_INFO
 #include <CircularBufferLogger.h>
 
-using PlatformLogger =
-	PlatformLogger_t<CircularLogBufferLogger<1024>>;
+using PlatformLogger = PlatformLogger_t<CircularLogBufferLogger<1024>>;
 
 #endif

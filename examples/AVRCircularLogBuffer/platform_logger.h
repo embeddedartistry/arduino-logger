@@ -3,7 +3,6 @@
 
 #include <AVRCircularBufferLogger.h>
 
-using PlatformLogger =
-	PlatformLogger_t<AVRCircularLogBufferLogger<1024>>;
+using PlatformLogger = PlatformLogger_t<AVRCircularLogBufferLogger<1024>>;
 
 #endif
