@@ -53,9 +53,9 @@
 
 #ifndef LOG_LEVEL_NAMES
 /// Users can override these default names with a compiler definition
-#define LOG_LEVEL_NAMES                                                   \
-	{                                                                     \
-		"off", "critical", "error", "warning", "info", "debug", 		  \
+#define LOG_LEVEL_NAMES                                         \
+	{                                                           \
+		"off", "critical", "error", "warning", "info", "debug", \
 	}
 #endif
 
@@ -64,9 +64,43 @@
 #define LOG_LEVEL_SHORT_NAMES                                                             \
 	{                                                                                     \
 		"O", LOG_LEVEL_CRITICAL_PREFIX, LOG_LEVEL_ERROR_PREFIX, LOG_LEVEL_WARNING_PREFIX, \
-			LOG_LEVEL_INFO_PREFIX, LOG_LEVEL_DEBUG_PREFIX,						          \
+			LOG_LEVEL_INFO_PREFIX, LOG_LEVEL_DEBUG_PREFIX,                                \
 	}
 #endif
+
+#pragma mark - Short File Name Macro -
+
+using cstr = const char* const;
+
+constexpr cstr past_last_slash(cstr str, cstr last_slash)
+{
+	return *str == '\0' ? last_slash
+						: *str == '/' ? past_last_slash(str + 1, str + 1)
+									  : past_last_slash(str + 1, last_slash);
+}
+
+constexpr cstr past_last_slash(cstr str)
+{
+	return past_last_slash(str, str);
+}
+
+#define __SHORT_FILE__                                  \
+	({                                                  \
+		constexpr cstr sf__{past_last_slash(__FILE__)}; \
+		sf__;                                           \
+	})
+
+#pragma mark - Trace Macro -
+
+#define STRINGPASTE(x) #x
+#define TOSTRING(x) STRINGPASTE(x)
+#define TRACE()                                                                \
+	({                                                                         \
+		constexpr cstr sf__{past_last_slash(__FILE__ ":" TOSTRING(__LINE__))}; \
+		sf__;                                                                  \
+	})
+
+#pragma mark - Logging Class -
 
 enum log_level_e
 {
@@ -80,12 +114,13 @@ enum log_level_e
 
 class logNames
 {
-public:
+  public:
 	constexpr static const char* level_short_names[LOG_LEVEL_COUNT] = LOG_LEVEL_SHORT_NAMES;
 	constexpr static const char* level_string_names[LOG_LEVEL_COUNT] = LOG_LEVEL_NAMES;
 };
 
-constexpr log_level_e LOG_LEVEL_LIMIT() {
+constexpr log_level_e LOG_LEVEL_LIMIT()
+{
 	return static_cast<log_level_e>(LOG_LEVEL);
 }
 
@@ -101,7 +136,7 @@ constexpr const char* LOG_LEVEL_TO_SHORT_C_STRING(log_level_e level)
 
 class LoggerBase
 {
-public:
+  public:
 	/** Get the current log buffer size
 	 *
 	 * Derived classes must implement this function.
@@ -232,7 +267,7 @@ public:
 
 			if(echo_)
 			{
-			// TODO: timestamp
+				// TODO: timestamp
 #if 0
 				if(system_clock_)
 				{
@@ -267,7 +302,7 @@ public:
 	 */
 	virtual void clear() noexcept = 0;
 
-protected:
+  protected:
 	/// Default constructor
 	LoggerBase() = default;
 
@@ -447,4 +482,4 @@ class PlatformLogger_t
 #define logecho(echo) PlatformLogger::inst().echo(lvl);
 #define logclear() PlatformLogger::inst().clear();
 
-#endif //ARDUINO_LOGGER_H_
+#endif // ARDUINO_LOGGER_H_

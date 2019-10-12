@@ -1,11 +1,11 @@
-#include <CircularBufferLogger.h>
+#include "test_helper.hpp"
+#include <AVRCircularBufferLogger.h>
 #include <catch.hpp>
 #include <string>
-#include <test_helper.hpp>
 
-TEST_CASE("CB: Create a logger", "[CircularBufferLogger]")
+TEST_CASE("AVR CB: Create a logger", "[AVRCircularBufferLogger]")
 {
-	CircularLogBufferLogger<1024> logger;
+	AVRCircularLogBufferLogger<1024> logger;
 
 	// Check default values
 	CHECK(0 == logger.size());
@@ -18,9 +18,9 @@ TEST_CASE("CB: Create a logger", "[CircularBufferLogger]")
 	CHECK(LOG_LEVEL_LIMIT() == level);
 }
 
-TEST_CASE("CB: Clear test", "[CircularBufferLogger]")
+TEST_CASE("AVR CB: Clear test", "[AVRCircularBufferLogger]")
 {
-	CircularLogBufferLogger<1024> logger;
+	AVRCircularLogBufferLogger<1024> logger;
 	log_buffer_output.clear();
 
 	logger.debug("Hello world\n");
@@ -33,9 +33,9 @@ TEST_CASE("CB: Clear test", "[CircularBufferLogger]")
 	CHECK(0 == logger.size());
 }
 
-TEST_CASE("CB: Flush test", "[CircularBufferLogger]")
+TEST_CASE("AVR CB: Flush test", "[AVRCircularBufferLogger]")
 {
-	CircularLogBufferLogger<1024> logger;
+	AVRCircularLogBufferLogger<1024> logger;
 	log_buffer_output.clear();
 
 	logger.debug("Hello world\n");
@@ -48,9 +48,9 @@ TEST_CASE("CB: Flush test", "[CircularBufferLogger]")
 	CHECK(0 == logger.size());
 }
 
-TEST_CASE("CB: Run-time Filtering", "[CircularBufferLogger]")
+TEST_CASE("AVR CB: Run-time Filtering", "[AVRCircularBufferLogger]")
 {
-	CircularLogBufferLogger<1024> logger;
+	AVRCircularLogBufferLogger<1024> logger;
 	// Change level so debug statements should be ignored
 	logger.level(log_level_e::warning);
 
@@ -60,9 +60,9 @@ TEST_CASE("CB: Run-time Filtering", "[CircularBufferLogger]")
 	CHECK(expected_size == logger.size());
 }
 
-TEST_CASE("CB: Log level checks", "[CircularBufferLogger]")
+TEST_CASE("AVR CB: Log level checks", "[AVRCircularBufferLogger]")
 {
-	CircularLogBufferLogger<1024> logger;
+	AVRCircularLogBufferLogger<1024> logger;
 	const char* test_string = "Test str";
 	auto expected_size = strlen(test_string) + prefix_len;
 

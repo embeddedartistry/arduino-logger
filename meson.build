@@ -48,8 +48,11 @@ logging_tests = executable('arduino_logger_tests',
 	[
 		files('src/ArduinoLogger.cpp'),
 		files('test/CircularBufferLoggerTests.cpp'),
+		files('test/AVRCircularBufferLoggerTests.cpp'),
 		files('test/catch_main.cpp'),
 		files('test/printf.c'),
+		files('test/test_helper.cpp'),
+		files('test/CoreLoggerTests.cpp'),
 	],
 	include_directories: test_includes,
 )
