@@ -90,7 +90,7 @@ constexpr cstr past_last_slash(cstr str)
 		sf__;                                           \
 	})
 
-#pragma mark - Trace Macro -
+#pragma mark - Tracing Macros -
 
 #define STRINGPASTE(x) #x
 #define TOSTRING(x) STRINGPASTE(x)
@@ -99,6 +99,9 @@ constexpr cstr past_last_slash(cstr str)
 		constexpr cstr sf__{past_last_slash(__FILE__ ":" TOSTRING(__LINE__))}; \
 		sf__;                                                                  \
 	})
+
+#define FUNC() __FUNCTION__
+#define PRETTY_FUNC() __PRETTY_FUNCTION__
 
 #pragma mark - Logging Class -
 

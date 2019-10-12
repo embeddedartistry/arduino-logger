@@ -3,11 +3,36 @@
 #include <string>
 #include <test_helper.hpp>
 
+class test
+{
+  public:
+	static std::string check_func_name(void)
+	{
+		return std::string(FUNC());
+	}
+
+	static std::string check_pretty_func_name(void)
+	{
+		return std::string(PRETTY_FUNC());
+	}
+};
+
 TEST_CASE("TRACE Macro", "[CoreLogger]")
 {
 	std::string_view trace_string{TRACE()};
 	std::string compare_string = std::string(__SHORT_FILE__) + ":" + std::to_string(__LINE__ - 1);
 	CHECK(trace_string == compare_string);
+}
+
+TEST_CASE("Func Macro", "[CoreLogger]")
+{
+	CHECK(std::string_view("check_func_name") == std::string_view(test::check_func_name()));
+}
+
+TEST_CASE("Pretty Func Macro", "[CoreLogger]")
+{
+	CHECK(std::string_view("static std::string test::check_pretty_func_name()") ==
+		  std::string_view(test::check_pretty_func_name()));
 }
 
 TEST_CASE("Short File Macro", "[CoreLogger]")
