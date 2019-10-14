@@ -3,6 +3,8 @@
 #include <string>
 #include <test_helper.hpp>
 
+// TODO: add tests for global macros (static inst) - do they do the right thing?
+
 class test
 {
   public:

@@ -432,6 +432,12 @@ class PlatformLogger_t
 		inst().debug(fmt, std::forward<const Args>(args)...);
 	}
 
+	template<typename... Args>
+	inline static void print(const char* fmt, const Args&... args)
+	{
+		inst().print(fmt, std::forward<const Args>(args)...);
+	}
+
 	inline static void flush()
 	{
 		inst().flush();
@@ -444,12 +450,12 @@ class PlatformLogger_t
 
 	inline static log_level_e level(log_level_e l)
 	{
-		inst().level(l);
+		return inst().level(l);
 	}
 
 	inline static bool echo(bool en)
 	{
-		inst().echo(en);
+		return inst().echo(en);
 	}
 };
 
