@@ -41,14 +41,14 @@
 
 #ifndef LOG_EN_DEFAULT
 /// Whether the logging module is enabled automatically on boot.
-#define LOG_EN_DEFAULT true
+#define LOG_EN_DEFAULT 1
 #endif
 
 #ifndef LOG_ECHO_EN_DEFAULT
 /// Indicates that log statements should be echoed to the console
 /// If true, log statements will be echoed.
 /// If false, log statements will only go to the log.
-#define LOG_ECHO_EN_DEFAULT false
+#define LOG_ECHO_EN_DEFAULT 0
 #endif
 
 #ifndef LOG_LEVEL_NAMES
@@ -146,7 +146,10 @@ class LoggerBase
 	 *
 	 * @returns The current size of the log buffer, in bytes.
 	 */
-	virtual size_t size() const noexcept = 0;
+	virtual size_t size() const noexcept
+	{
+		return -1;
+	}
 
 	/** Get the log buffer capacity
 	 *
@@ -154,7 +157,10 @@ class LoggerBase
 	 *
 	 * @returns The total capacity of the log buffer, in bytes.
 	 */
-	virtual size_t capacity() const noexcept = 0;
+	virtual size_t capacity() const noexcept
+	{
+		return -1;
+	}
 
 	/** Check if the log is enabled.
 	 *
@@ -286,7 +292,7 @@ class LoggerBase
 	 *
 	 * Derived classes must implement this function.
 	 */
-	virtual void flush() noexcept = 0;
+	virtual void flush() noexcept {}
 
 	/** Clear the contents of the log buffer.
 	 *
@@ -294,7 +300,7 @@ class LoggerBase
 	 *
 	 * @post The log buffer will be empty.
 	 */
-	virtual void clear() noexcept = 0;
+	virtual void clear() noexcept {}
 
   protected:
 	/// Default constructor
