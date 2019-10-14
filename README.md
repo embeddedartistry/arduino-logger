@@ -166,7 +166,9 @@ You can clear all contents from the log buffer using `logclear()`. This will emp
     - Ability to print all log buffer information over the `Serial` device
 * [SD Logger](SDCardLogger.h)
     - Writes log information to an SD card slot
-    - Uses the [SdFat](https://github.com/greiman/SdFat) Library
+    - Stores information in a single file: `log.txt`
+    - Internal 512 byte buffer. Data is flushed when the buffer is full, or when `flush()` is called.
+    - Uses the [SdFat](https://github.com/greiman/SdFat) library, or the [SdFat-beta](https://github.com/greiman/SdFat-beta) library for Teensy boards
 * [Circular Log Buffer: Global Instance Interface](examples/CircularLogBuffer_GlobalInst)
   - Same behavior as the Circular Log Buffer example
   - A global logger instance is used, but the macros are not
@@ -320,6 +322,8 @@ logecho(true); // enables echoing via printf()
 * [CircularLogBuffer_CompileTimeFiltering](examples/CircularLogBuffer_CompileTimeFiltering)
     - Demonstrates defining `LOG_LEVEL` in `platform_logging.h` to filter out messages during compilation
     - This sketch represents a global static logger instance that uses the provided macros to allow compile-time filtering of log statements
+* [TeensySDLogger](examples/TeensySDLogger)
+  - Demonstrates the use of the SDFileLogger on a Teensy board using SDIO in FIFO mode
 
 ## Creating a Custom Logging Strategy
 
