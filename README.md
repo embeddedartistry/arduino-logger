@@ -332,6 +332,8 @@ class CircularLogBufferLogger final : public LoggerBase
 
 The `LoggerBase` interface requires that you supply the following function in your custom implementation:
 
+* `log_putc()`
+  - This function is used to add characters to the underlying log buffer or log destination (e.g. over `Serial`)
 * Constructor (needs to call the `LoggerBase` constructor): `CircularLogBufferLogger() : LoggerBase() {}`
 * Destructor (can be default)
 
@@ -349,7 +351,6 @@ These functions are used to control optional behaviors of the class. If you do n
   - Will remove output from the internal buffer without flushing it to the destination
 * `log_customprefix()`
   - If you want to add a custom prefix to all log statements, such as a timestamp, override this function
-
 
 ## Tests
 
