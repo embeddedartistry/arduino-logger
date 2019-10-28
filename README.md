@@ -169,6 +169,21 @@ You can clear all contents from the log buffer using `logclear()`. This will emp
     - Stores information in a single file: `log.txt`
     - Internal 512 byte buffer. Data is flushed when the buffer is full, or when `flush()` is called.
     - Uses the [SdFat](https://github.com/greiman/SdFat) library, or the [SdFat-beta](https://github.com/greiman/SdFat-beta) library for Teensy boards
+* [Teensy SD Logger](TeensySDLogger.h)
+    - Writes log information to an SD card slot
+    - Stores information in a single file: `log.txt`
+    - Internal 512 byte buffer. Data is flushed when the buffer is full, or when `flush()` is called.
+    - Uses the [SdFat](https://github.com/greiman/SdFat) library, or the [SdFat-beta](https://github.com/greiman/SdFat-beta) library for Teensy boards
+    - Checks the reset reason when `begin()` is called and adds the information to the log
+* [Teensy Rotational SD Logger](TeensyRotationalSDLogger.h)
+    - Writes log information to an SD card slot
+    - Stores information in multiple files: logX.txt
+      + Counts from 1..254
+      + Count is persistent across resets. The value is stored in the EEPROM at address 4095
+      + Each boot gets a new log file instance
+    - Internal 512 byte buffer. Data is flushed when the buffer is full, or when `flush()` is called.
+    - Uses the [SdFat](https://github.com/greiman/SdFat) library, or the [SdFat-beta](https://github.com/greiman/SdFat-beta) library for Teensy boards
+    - Checks the reset reason when `begin()` is called and adds the information to the log
 * [Circular Log Buffer: Global Instance Interface](examples/CircularLogBuffer_GlobalInst)
   - Same behavior as the Circular Log Buffer example
   - A global logger instance is used, but the macros are not
@@ -326,6 +341,8 @@ logecho(true); // enables echoing via printf()
   - Demonstrates the use of the SDFileLogger on a Teensy board using SDIO in FIFO mode
 * [TeensySDLogger](examples/TeensySDLogger)
   - Demonstrates the use of the TeensySDLogger on a Teensy board using SDIO in FIFO mode. This logger will detect the reboot reason and log that to the file when `begin()` is called.
+* [TeensySDRotationalLogger](examples/TeensySDRotationalLogger)
+  - Demonstrates the use of the TeensySDRotationalLogger on a Teensy board using SDIO in FIFO mode. This logger will detect the reboot reason and log that to the file when `begin()` is called. Every time the board resets, a new log file will be created. The log files will increment in count until they reach 254, then they reset back to 1.
 
 ## Creating a Custom Logging Strategy
 

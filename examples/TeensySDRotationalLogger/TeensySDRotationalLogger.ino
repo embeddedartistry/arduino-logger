@@ -1,6 +1,6 @@
-#include "TeensySDLogger.h"
+#include "TeensySDRotationalLogger.h"
 
-static TeensySDLogger Log;
+static TeensySDRotationalLogger Log;
 static SdFs sd;
 static int iterations = 0;
 
