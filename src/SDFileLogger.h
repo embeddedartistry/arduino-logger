@@ -1,9 +1,9 @@
 #ifndef SD_FILE_LOGGER_H_
 #define SD_FILE_LOGGER_H_
 
+#include "Arduino.h"
 #include "ArduinoLogger.h"
 #include "SdFat.h"
-#include "Arduino.h"
 #include <internal/ring_span.hpp>
 
 /** SD File Buffer
@@ -22,7 +22,8 @@
 class SDFileLogger final : public LoggerBase
 {
   private:
-  	static constexpr size_t BUFFER_SIZE = 512;
+	static constexpr size_t BUFFER_SIZE = 512;
+
   public:
 	/// Default constructor
 	SDFileLogger() : LoggerBase() {}
@@ -38,12 +39,12 @@ class SDFileLogger final : public LoggerBase
 	size_t capacity() const noexcept final
 	{
 		// size in blocks * bytes per block (512 Bytes = 2^9)
-		return fs_ ? fs_->card()->sectorCount()<< 9 : 0;
+		return fs_ ? fs_->card()->sectorCount() << 9 : 0;
 	}
 
 	void flush() noexcept final
 	{
-		if (!file_.open(filename_, O_WRITE | O_APPEND))
+		if(!file_.open(filename_, O_WRITE | O_APPEND))
 		{
 			errorHalt("Failed to open file");
 		}
@@ -72,7 +73,7 @@ class SDFileLogger final : public LoggerBase
 	{
 		fs_ = &sd_inst;
 
-		if (!file_.open(filename_, O_WRITE | O_CREAT))
+		if(!file_.open(filename_, O_WRITE | O_CREAT))
 		{
 			errorHalt("Failed to open file");
 		}
@@ -96,25 +97,27 @@ class SDFileLogger final : public LoggerBase
 	}
 
   private:
-  	void errorHalt(const char* msg)
-  	{
-	  printf("Error: %s\n", msg);
-	  if (fs_->sdErrorCode())
-	  {
-	    if (fs_->sdErrorCode() == SD_CARD_ERROR_ACMD41)
-	    {
-	      printf("Try power cycling the SD card.\n");
-	    }
-	    printSdErrorSymbol(&Serial, fs_->sdErrorCode());
-	    printf(", ErrorData: 0x%x\n", fs_->sdErrorData());
-	  }
-	  while (true) {}
+	void errorHalt(const char* msg)
+	{
+		printf("Error: %s\n", msg);
+		if(fs_->sdErrorCode())
+		{
+			if(fs_->sdErrorCode() == SD_CARD_ERROR_ACMD41)
+			{
+				printf("Try power cycling the SD card.\n");
+			}
+			printSdErrorSymbol(&Serial, fs_->sdErrorCode());
+			printf(", ErrorData: 0x%x\n", fs_->sdErrorData());
+		}
+		while(true)
+		{
+		}
 	}
 
   private:
-  	SdFs* fs_;
-  	const char* filename_ = "log.txt";
-  	FsFile file_;
+	SdFs* fs_;
+	const char* filename_ = "log.txt";
+	FsFile file_;
 
 	char buffer_[BUFFER_SIZE] = {0};
 	size_t counter = 0;
