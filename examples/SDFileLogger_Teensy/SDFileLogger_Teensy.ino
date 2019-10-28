@@ -1,6 +1,6 @@
-#include "TeensySDLogger.h"
+#include "SDFileLogger.h"
 
-static TeensySDLogger Log;
+static SDFileLogger Log;
 static SdFs sd;
 static int iterations = 0;
 
@@ -9,9 +9,6 @@ static int iterations = 0;
 void setup()
 {
   Serial.begin(115200);
-  while(!Serial) delay(10); 
-  // wait for Arduino Serial Monitor (native USB boards)
-  
   sd.begin(SdioConfig(FIFO_SDIO));
   Log.begin(sd);
   Log.echo(true); // log calls will be printed over Serial

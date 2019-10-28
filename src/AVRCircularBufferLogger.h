@@ -3,6 +3,7 @@
 
 #include "ArduinoLogger.h"
 #include "internal/Queue.h"
+#include <avr/wdt.h>
 
 /** Circular log buffer
  *
@@ -46,6 +47,31 @@ class AVRCircularLogBufferLogger final : public LoggerBase
 
 	/// Default destructor
 	~AVRCircularLogBufferLogger() noexcept = default;
+
+	void resetCause()
+	{
+		auto reg = MCUSR;
+
+		if(reg & (1 << WDRF))
+		{
+			info("Watchdog reset\n");
+		}
+
+		if(reg & (1 << BORF))
+		{
+			info("Brown-out reset\n");
+		}
+
+		if(reg & (1 << EXTRF))
+		{
+			info("External reset\n");
+		}
+
+		if(reg & (1 << PORF))
+		{
+			info("Power-on reset\n");
+		}
+	}
 
 	size_t size() const noexcept final
 	{

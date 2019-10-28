@@ -322,8 +322,10 @@ logecho(true); // enables echoing via printf()
 * [CircularLogBuffer_CompileTimeFiltering](examples/CircularLogBuffer_CompileTimeFiltering)
     - Demonstrates defining `LOG_LEVEL` in `platform_logging.h` to filter out messages during compilation
     - This sketch represents a global static logger instance that uses the provided macros to allow compile-time filtering of log statements
-* [TeensySDLogger](examples/TeensySDLogger)
+* [SDFileLogger_Teensy](examples/SDFileLogger_Teensy)
   - Demonstrates the use of the SDFileLogger on a Teensy board using SDIO in FIFO mode
+* [TeensySDLogger](examples/TeensySDLogger)
+  - Demonstrates the use of the TeensySDLogger on a Teensy board using SDIO in FIFO mode. This logger will detect the reboot reason and log that to the file when `begin()` is called.
 
 ## Creating a Custom Logging Strategy
 
