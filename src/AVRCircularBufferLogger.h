@@ -103,7 +103,6 @@ class AVRCircularLogBufferLogger final : public LoggerBase
 	}
 
   private:
-	char buffer_[TBufferSize] = {0};
 	Queue<char> log_buffer_{TBufferSize};
 };
 

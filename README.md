@@ -156,26 +156,35 @@ You can clear all contents from the log buffer using `logclear()`. This will emp
 
 ### Provided Logging Implementations
 
-* [Circular Log Buffer](CircularBufferLogger.h)
+* [Circular Log Buffer](src/CircularBufferLogger.h)
     - Log information is stored in a circular buffer in RAM
     - When the buffer is full, old data is overwritten with new data
     - Ability to print all log buffer information over the `Serial` device
-* [AVR-specialized Circular Buffer](AVRCircularBufferLogger.h)
+* [AVR-specialized Circular Buffer](src/AVRCircularBufferLogger.h)
     - Log information is stored in a circular buffer in RAM
     - When the buffer is full, old data is overwritten with new data
     - Ability to print all log buffer information over the `Serial` device
+* [AVR-specialized Rotational SD Logger](src/AVRCircularBufferLogger.h)
+  - Writes log information to an SD card slot
+    - Stores information in multiple files: logX.txt
+      + Counts from 1..254
+      + Count is persistent across resets. The value is stored in the EEPROM at address 4095
+      + Each boot gets a new log file instance
+    - Internal 512 byte buffer. Data is flushed when the buffer is full, or when `flush()` is called.
+    - Uses the [SdFat](https://github.com/greiman/SdFat) library, or the [SdFat-beta](https://github.com/greiman/SdFat-beta) library
+    - Checks the reset reason when `begin()` is called and adds the information to the log
 * [SD Logger](SDCardLogger.h)
     - Writes log information to an SD card slot
     - Stores information in a single file: `log.txt`
     - Internal 512 byte buffer. Data is flushed when the buffer is full, or when `flush()` is called.
     - Uses the [SdFat](https://github.com/greiman/SdFat) library, or the [SdFat-beta](https://github.com/greiman/SdFat-beta) library for Teensy boards
-* [Teensy SD Logger](TeensySDLogger.h)
+* [Teensy SD Logger](src/TeensySDLogger.h)
     - Writes log information to an SD card slot
     - Stores information in a single file: `log.txt`
     - Internal 512 byte buffer. Data is flushed when the buffer is full, or when `flush()` is called.
     - Uses the [SdFat](https://github.com/greiman/SdFat) library, or the [SdFat-beta](https://github.com/greiman/SdFat-beta) library for Teensy boards
     - Checks the reset reason when `begin()` is called and adds the information to the log
-* [Teensy Rotational SD Logger](TeensyRotationalSDLogger.h)
+* [Teensy Rotational SD Logger](src/TeensyRotationalSDLogger.h)
     - Writes log information to an SD card slot
     - Stores information in multiple files: logX.txt
       + Counts from 1..254
@@ -184,16 +193,6 @@ You can clear all contents from the log buffer using `logclear()`. This will emp
     - Internal 512 byte buffer. Data is flushed when the buffer is full, or when `flush()` is called.
     - Uses the [SdFat](https://github.com/greiman/SdFat) library, or the [SdFat-beta](https://github.com/greiman/SdFat-beta) library for Teensy boards
     - Checks the reset reason when `begin()` is called and adds the information to the log
-* [Circular Log Buffer: Global Instance Interface](examples/CircularLogBuffer_GlobalInst)
-  - Same behavior as the Circular Log Buffer example
-  - A global logger instance is used, but the macros are not
-  - Log statements are called using the static member functions of the global instance wrapper class
-  - These calls are forwarded to the chosen log buffer strategy
-  - The example still uses `platform_logger.h`, but this header is not required for this configuration. You can locally create your own alias.
-* [Circular Log Buffer: Local Instance Interface](examples/CircularLogBuffer_LocalInst)
-  - Same behavior as the Circular Log Buffer example
-  - A local logger instance is declared. Multiple loggers can be instantiated if desired.
-  - Log statements are called directly on the local object
 
 ### Selecting a Logging Strategy
 
@@ -343,6 +342,18 @@ logecho(true); // enables echoing via printf()
   - Demonstrates the use of the TeensySDLogger on a Teensy board using SDIO in FIFO mode. This logger will detect the reboot reason and log that to the file when `begin()` is called.
 * [TeensySDRotationalLogger](examples/TeensySDRotationalLogger)
   - Demonstrates the use of the TeensySDRotationalLogger on a Teensy board using SDIO in FIFO mode. This logger will detect the reboot reason and log that to the file when `begin()` is called. Every time the board resets, a new log file will be created. The log files will increment in count until they reach 254, then they reset back to 1.
+* [AVRSDRotationalLogger](examples/AVRSDRotationalLogger)
+  - Demonstrates the use of the AVRSDRotationalLogger on an ATMega board which has a Wiznet W5500 Ethernet board featuring an SD card slot. This logger will detect the reboot reason and log that to the file when `begin()` is called. Every time the board resets, a new log file will be created. The log files will increment in count until they reach 254, then they reset back to 1.
+* [Circular Log Buffer: Global Instance Interface](examples/CircularLogBuffer_GlobalInst)
+  - Same behavior as the Circular Log Buffer example
+  - A global logger instance is used, but the macros are not
+  - Log statements are called using the static member functions of the global instance wrapper class
+  - These calls are forwarded to the chosen log buffer strategy
+  - The example still uses `platform_logger.h`, but this header is not required for this configuration. You can locally create your own alias.
+* [Circular Log Buffer: Local Instance Interface](examples/CircularLogBuffer_LocalInst)
+  - Same behavior as the Circular Log Buffer example
+  - A local logger instance is declared. Multiple loggers can be instantiated if desired.
+  - Log statements are called directly on the local object
 
 ## Creating a Custom Logging Strategy
 
