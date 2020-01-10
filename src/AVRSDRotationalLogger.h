@@ -1,5 +1,5 @@
-#ifndef SD_FILE_LOGGER_H_
-#define SD_FILE_LOGGER_H_
+#ifndef AVR_SD_FILE_LOGGER_H_
+#define AVR_SD_FILE_LOGGER_H_
 
 #include "Arduino.h"
 #include "ArduinoLogger.h"
@@ -7,9 +7,9 @@
 #include <EEPROM.h>
 #include <avr/wdt.h>
 
-/** SD File Buffer
+/** AVR SD File Buffer
  *
- * Logs to a file on the SD card.
+ * Logs to a file on the SD card. This class is meant for AVR chips
  *
  * This class uses the SdFat Arduino Library.
  *
@@ -138,7 +138,7 @@ class AVRSDRotationalLogger final : public LoggerBase
 		}
 	}
 
-	/// Checks the kinetis SoC's reset reason registers and logs them
+	/// Checks the AVR SoC's reset reason registers and logs them
 	/// This should only be called during begin().
 	void log_reset_reason()
 	{
@@ -189,4 +189,4 @@ class AVRSDRotationalLogger final : public LoggerBase
 	size_t counter = 0;
 };
 
-#endif // SD_FILE_LOGGER_H_
+#endif // AVR_SD_FILE_LOGGER_H_
