@@ -124,7 +124,7 @@ class logNames
 	constexpr static const char* level_string_names[LOG_LEVEL_COUNT] = LOG_LEVEL_NAMES;
 };
 
-constexpr log_level_e LOG_LEVEL_LIMIT()
+constexpr log_level_e LOG_LEVEL_LIMIT() noexcept
 {
 	return static_cast<log_level_e>(LOG_LEVEL);
 }

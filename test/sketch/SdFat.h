@@ -12,7 +12,7 @@
 #define O_APPEND 3
 #define SD_CARD_ERROR_ACMD41 0xff
 
-void printSdErrorSymbol(Print* p, unsigned err)
+void printSdErrorSymbol(Print* p, int err)
 {
 
 }

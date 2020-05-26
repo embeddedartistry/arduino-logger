@@ -52,7 +52,8 @@ class AVRSDRotationalLogger final : public LoggerBase
 			errorHalt("Failed to open file");
 		}
 
-		if(counter != file_.write(buffer_, counter))
+		int r = file_.write(buffer_, counter);
+		if(r < 0 || counter != static_cast<size_t>(r))
 		{
 			errorHalt("Failed to write to log file");
 		}
@@ -91,7 +92,8 @@ class AVRSDRotationalLogger final : public LoggerBase
 		// Manually flush, since the file is open
 		if(counter)
 		{
-			if(counter != file_.write(buffer_, counter))
+			int r = file_.write(buffer_, counter);
+			if(r < 0 || counter != static_cast<size_t>(r))
 			{
 				errorHalt("Failed to write to log file");
 			}
@@ -177,7 +179,7 @@ class AVRSDRotationalLogger final : public LoggerBase
 
 		snprintf(filename_, FILENAME_SIZE, "log_%d.txt", value);
 
-		EEPROM.write(EEPROM_LOG_STORAGE_ADDR, value + 1);
+		EEPROM.write(EEPROM_LOG_STORAGE_ADDR, static_cast<uint8_t>(value + 1));
 	}
 
   private:
