@@ -223,7 +223,7 @@ class LoggerBase
 	template<typename... Args>
 	void critical(const char* fmt, const Args&... args)
 	{
-#if defined(ARDUINO_ARCH_AVR)
+#if defined(__AVR__)
 		log(log_level_e::critical, fmt, args...);
 #else
 		log(log_level_e::critical, fmt, std::forward<const Args>(args)...);
@@ -233,7 +233,7 @@ class LoggerBase
 	template<typename... Args>
 	void error(const char* fmt, const Args&... args)
 	{
-#if defined(ARDUINO_ARCH_AVR)
+#if defined(__AVR__)
 		log(log_level_e::error, fmt, args...);
 #else
 		log(log_level_e::error, fmt, std::forward<const Args>(args)...);
@@ -243,7 +243,7 @@ class LoggerBase
 	template<typename... Args>
 	void warning(const char* fmt, const Args&... args)
 	{
-#if defined(ARDUINO_ARCH_AVR)
+#if defined(__AVR__)
 		log(log_level_e::warning, fmt, args...);
 #else
 		log(log_level_e::warning, fmt, std::forward<const Args>(args)...);
@@ -253,7 +253,7 @@ class LoggerBase
 	template<typename... Args>
 	void info(const char* fmt, const Args&... args)
 	{
-#if defined(ARDUINO_ARCH_AVR)
+#if defined(__AVR__)
 		log(log_level_e::info, fmt, args...);
 #else
 		log(log_level_e::info, fmt, std::forward<const Args>(args)...);
@@ -263,7 +263,7 @@ class LoggerBase
 	template<typename... Args>
 	void debug(const char* fmt, const Args&... args)
 	{
-#if defined(ARDUINO_ARCH_AVR)
+#if defined(__AVR__)
 		log(log_level_e::debug, fmt, args...);
 #else
 		log(log_level_e::debug, fmt, std::forward<const Args>(args)...);
@@ -435,7 +435,7 @@ class PlatformLogger_t
 	template<typename... Args>
 	inline static void critical(const char* fmt, const Args&... args)
 	{
-#if defined(ARDUINO_ARCH_AVR)
+#if defined(__AVR__)
 		inst().critical(fmt, args...);
 #else
 		inst().critical(fmt, std::forward<const Args>(args)...);
@@ -445,7 +445,7 @@ class PlatformLogger_t
 	template<typename... Args>
 	inline static void error(const char* fmt, const Args&... args)
 	{
-#if defined(ARDUINO_ARCH_AVR)
+#if defined(__AVR__)
 		inst().error(fmt, args...);
 #else
 		inst().error(fmt, std::forward<const Args>(args)...);
@@ -455,7 +455,7 @@ class PlatformLogger_t
 	template<typename... Args>
 	inline static void warning(const char* fmt, const Args&... args)
 	{
-#if defined(ARDUINO_ARCH_AVR)
+#if defined(__AVR__)
 		inst().warning(fmt, args...);
 #else
 		inst().warning(fmt, std::forward<const Args>(args)...);
@@ -465,7 +465,7 @@ class PlatformLogger_t
 	template<typename... Args>
 	inline static void info(const char* fmt, const Args&... args)
 	{
-#if defined(ARDUINO_ARCH_AVR)
+#if defined(__AVR__)
 		inst().info(fmt, args...);
 #else
 		inst().info(fmt, std::forward<const Args>(args)...);
@@ -475,7 +475,7 @@ class PlatformLogger_t
 	template<typename... Args>
 	inline static void debug(const char* fmt, const Args&... args)
 	{
-#if defined(ARDUINO_ARCH_AVR)
+#if defined(__AVR__)
 		inst().debug(fmt, args...);
 #else
 		inst().debug(fmt, std::forward<const Args>(args)...);
@@ -485,7 +485,7 @@ class PlatformLogger_t
 	template<typename... Args>
 	inline static void print(const char* fmt, const Args&... args)
 	{
-#if defined(ARDUINO_ARCH_AVR)
+#if defined(__AVR__)
 		inst().print(fmt, args...);
 #else
 		inst().print(fmt, std::forward<const Args>(args)...);
