@@ -2,7 +2,7 @@
 #define ARDUINO_LOGGER_H_
 
 #include <LibPrintf.h>
-#if !defined(ARDUINO_ARCH_AVR)
+#if !defined(__AVR__)
 #include <utility>
 #endif
 
