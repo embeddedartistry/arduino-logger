@@ -1,7 +1,7 @@
 #ifndef ARDUINO_LOGGER_H_
 #define ARDUINO_LOGGER_H_
 
-#include <printf.h>
+#include <LibPrintf.h>
 #if !defined(ARDUINO_ARCH_AVR)
 #include <utility>
 #endif
@@ -147,10 +147,11 @@ class LoggerBase
 	 * Derived classes must implement this function.
 	 *
 	 * @returns The current size of the log buffer, in bytes.
+	 *	The base class returns SIZE_MAX to indicate a potentially invalid condition.
 	 */
 	virtual size_t size() const noexcept
 	{
-		return -1;
+		return SIZE_MAX;
 	}
 
 	/** Get the log buffer capacity
@@ -158,10 +159,11 @@ class LoggerBase
 	 * Derived classes must implement this function.
 	 *
 	 * @returns The total capacity of the log buffer, in bytes.
+	 *	The base class returns SIZE_MAX to indicate a potentially invalid condition.
 	 */
 	virtual size_t capacity() const noexcept
 	{
-		return -1;
+		return SIZE_MAX;
 	}
 
 	/** Check if the log is enabled.
