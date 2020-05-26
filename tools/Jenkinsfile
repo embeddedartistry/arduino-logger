@@ -48,7 +48,7 @@ pipeline
 		{
 			steps
 			{
-				sh 'make CROSS=avr:arduino_mega'
+				sh 'make CROSS=avr:arduino_mega BUILDRESULTS=buildresults/avr'
 			}
 			post
 			{
@@ -59,7 +59,7 @@ pipeline
 						unhealthy: 10,
 						aggregatingResults: true,
 						referenceJobName: 'ea-nightly/arduino-logger/master',
-						sourceDirectory: 'buildresults/',
+						sourceDirectory: 'buildresults/avr/',
 						filters: [
 							excludeFile('subprojects/*')
 						],
