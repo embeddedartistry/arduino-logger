@@ -150,7 +150,6 @@ endif
 
 clangformat_excludes = [
 	meson.source_root() / 'test/catch.hpp',
-	meson.source_root() / 'test/printf.c'
 ]
 
 cppcheck_paths = [
