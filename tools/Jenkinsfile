@@ -94,7 +94,7 @@ pipeline
 						healthy: 5,
 						unhealthy: 10,
 						aggregatingResults: true,
-						referenceJobName: 'ea-nightly/project-skeleton/master',
+						referenceJobName: 'ea-nightly/arduino-logger/master',
 						filters: [
 							excludeFile('subprojects/*')
 						],
@@ -143,7 +143,7 @@ pipeline
 				],
 				tools: [
 					taskScanner(
-						excludePattern: 'buildresults/**, subprojects/**, build/**, extras/**',
+						excludePattern: 'buildresults/**, subprojects/**, build/**, extras/**, test/catch.hpp',
 						includePattern: '**/*.c, **/*.cpp, **/*.h, **/*.hpp, **/*.sh, **/*.build, **/*.ino',
 						normalTags: 'TODO, to do, WIP',
 						highTags: 'FIXME, FIX',
