@@ -61,7 +61,11 @@ class CircularLogBufferLogger final : public LoggerBase
 	{
 		while(!log_buffer_.empty())
 		{
+#ifdef __XTENSA__
+			ets_putc(log_buffer_.pop_front());
+#else
 			_putchar(log_buffer_.pop_front());
+#endif
 		}
 	}
 
