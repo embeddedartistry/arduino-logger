@@ -303,7 +303,7 @@ class LoggerBase
 	template<typename... Args>
 	void print(const Args&... args) noexcept
 	{
-		fctprintf(&LoggerBase::log_putc_bounce, this, format, args...);
+		fctprintf(&LoggerBase::log_putc_bounce, this, args...);
 
 		if(echo_)
 		{
