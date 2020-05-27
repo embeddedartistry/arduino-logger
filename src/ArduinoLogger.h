@@ -1,7 +1,7 @@
 #ifndef ARDUINO_LOGGER_H_
 #define ARDUINO_LOGGER_H_
 
-#ifdef ESP8266
+#ifdef __XTENSA__
 #include <ets_sys.h>
 #include <internal/lambda.h>
 #else
@@ -11,7 +11,7 @@
 #include <utility>
 #endif
 
-#ifdef ESP8266
+#ifdef __XTENSA__
 void _putchar(char c);
 #endif
 
@@ -279,7 +279,7 @@ class LoggerBase
 #endif
 	}
 
-#ifdef ESP8266
+#ifdef __XTENSA__
 	/// Prints directly to the log with no extra characters added to the message.
 	void print(const char* format, ...) noexcept
 	{
