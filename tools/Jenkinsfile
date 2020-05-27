@@ -143,7 +143,7 @@ pipeline
 				],
 				tools: [
 					taskScanner(
-						excludePattern: 'buildresults/**, subprojects/**, build/**, extras/**, test/catch.hpp',
+						excludePattern: 'buildresults/**, subprojects/**, build/**, extras/**, test/catch/**',
 						includePattern: '**/*.c, **/*.cpp, **/*.h, **/*.hpp, **/*.sh, **/*.build, **/*.ino',
 						normalTags: 'TODO, to do, WIP',
 						highTags: 'FIXME, FIX',

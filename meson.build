@@ -133,7 +133,7 @@ logging_tests = executable('arduino_logger_tests',
 		files('test/test_helper.cpp'),
 		files('test/CoreLoggerTests.cpp'),
 	],
-	include_directories: include_directories('test', 'src'),
+	include_directories: include_directories('test', 'test/catch', 'src'),
 	dependencies: libPrintf_test_dep,
 	native: true,
 	build_by_default: meson.is_subproject() == false,
@@ -149,7 +149,8 @@ endif
 ############################
 
 clangformat_excludes = [
-	meson.source_root() / 'test/catch.hpp',
+	meson.source_root() / 'test/catch',
+	meson.source_root() / 'test/sketch',
 ]
 
 cppcheck_paths = [
