@@ -20,7 +20,7 @@ Flexible logging library for the Arduino SDK. This library allows the same loggi
 
 ## Dependencies
 
-This library requires the following Arduino library to be installed on your system:
+This library requires the following Arduino library to be installed on your system if you are using a non-ESP8266 setup:
 
 * [embeddedartistry/arduino-printf](https://github.com/embeddedartistry/arduino-printf)
 
@@ -280,7 +280,7 @@ These settings can be changed in the build system, but it is easiest to define t
 
 By default, the logging library does not echo logging calls to the serial console. You can change the default setting at compile-time using the `LOG_ECHO_EN_DEFAULT` definition.
 
-The logging library will print the output using the `printf` function. To change that output, see the instructions in the [embeddedartistry/arduino-printf](https://github.com/embeddedartistry/arduino-printf) library.
+The logging library will print the output using the `printf` function. To change that output, see the instructions in the [embeddedartistry/arduino-printf](https://github.com/embeddedartistry/arduino-printf) library. If you are using the ESP8266, we use the built-in `printf` support instead of the external library.
 
 The setting can be changed in your build system or by defining the desired value in `platform_logger.h` before including the necessary logging library header.
 
