@@ -275,7 +275,7 @@ class LoggerBase
 	template<typename... Args>
 	void print(const Args&... args) noexcept
 	{
-		fctprintf(&LoggerBase::log_putc_bounce, this, args...);
+		fctprintf(&LoggerBase::log_add_char_to_buffer_bounce, this, args...);
 
 		if(echo_)
 		{
@@ -375,18 +375,74 @@ class LoggerBase
 	 */
 	virtual void log_putc(char c) = 0;
 
+	/** Helper function for logging to the buffer.
+	*
+	* If auto-flushing is enabled, we check whether the RAM buffer storage
+	* is full and then call flush(). Otherwise, we forward the character to
+	* the logging strategy's log_putc() implementation.
+	*
+	* Deived classes may override this function if desired.
+	*
+	* @param c The character to insert into the log buffer.
+	*/
+	virtual void log_add_char_to_buffer(char c)
+	{
+		if(internal_size() == internal_capacity())
+		{
+			flush();
+		}
+
+		log_putc(c);
+	}
+
 	/** putc bounce function
 	 *
 	 * This is a bounce function which registers with the C printf API. We use the private parameter
-	 * to store the `this` pointer so we can get back to our logger's putc instance.
+	 * to store the `this` pointer so we can get back to our logger's add_char_to_buffer function.
 	 *
 	 * @param c The character to log.
 	 * @param this_ptr The this pointer of the logger instance. Used to invoke log_putc() on the
 	 * correct instance.
 	 */
-	static void log_putc_bounce(char c, void* this_ptr)
+	static void log_add_char_to_buffer_bounce(char c, void* this_ptr)
 	{
-		reinterpret_cast<LoggerBase*>(this_ptr)->log_putc(c);
+		reinterpret_cast<LoggerBase*>(this_ptr)->log_add_char_to_buffer(c);
+	}
+
+	/** Get the current size of the log buffer internal storage.
+	 *
+	 * This function returns the size of the internal storage, usually a buffer
+	 * or circular buffer in RAM. This buffer size is required for controlling
+	 * auto-flush behavior.
+	 *
+	 * For example, you might store log files on an SD card, but have an
+	 * internal memory representation as well. The SD file size is likely
+	 * much larger than the internal buffer size, so this difference is important.
+	 *
+	 * @returns The current size of the internal staging log buffer, in bytes.
+	 *	By default, this returns size(). Override if necessary.
+	 */
+	virtual size_t internal_size() const noexcept
+	{
+		return size();
+	}
+
+	/** Get the capacity of the log buffer internal storage.
+	 *
+	 * This function returns the capacity of the internal storage, usually a buffer
+	 * or circular buffer in RAM. This buffer size is required for controlling
+	 * auto-flush behavior.
+	 *
+	 * For example, you might store log files on an SD card, but have an
+	 * internal memory representation as well. The SD file capacity is likely
+	 * much larger than the internal buffer capacity, so this difference is important.
+	 *
+	 * @returns The current capacity of the internal staging log buffer, in bytes.
+	 *	By default, this returns capacity(). Override if necessary.
+	 */
+	virtual size_t internal_capacity() const noexcept
+	{
+		return capacity();
 	}
 
   private:

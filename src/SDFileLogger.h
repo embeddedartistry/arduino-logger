@@ -89,11 +89,16 @@ class SDFileLogger final : public LoggerBase
 	{
 		buffer_[counter] = c;
 		counter++;
+	}
 
-		if(counter == BUFFER_SIZE)
-		{
-			flush();
-		}
+	size_t internal_size() const noexcept override
+	{
+		return counter;
+	}
+
+	size_t internal_capacity() const noexcept override
+	{
+		return BUFFER_SIZE;
 	}
 
   private:

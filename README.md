@@ -374,11 +374,19 @@ The `LoggerBase` interface requires that you supply the following function in yo
 These functions are used to control optional behaviors of the class. If you do not override them, a default implementation will be supplied.
 
 * `size()`
-  - Returns the current size of the underlying buffer, if relevant
+  - Returns the current size of the log storage, if relevant
   - If not needed, make size() return -1
 * `capacity()`
-  - Returns the total capacity of the underlying buffer, if relevant
+  - Returns the total capacity of the log storage, if relevant
   - If not needed, make size() return -1;
+* `internal_size()`
+  - Returns the current size of the internal log buffer, if different from the size of the log storage itself (e.g., `size()` returns an SD card file size, while `internal_size()` returns the current size of the internal RAM circular buffer)
+  - This function is used to control auto-flushing behavior. Flushing occurs when `internal_size()` == `internal_capacity()`.
+  - If not needed, this defaults to `size()`
+* `internal_capacity()`
+  - Returns the total capacity of the internal log buffer, if different from the size of the log storage itself (e.g., `capacity()` returns space available on the SD card, while `internal_capacity()` returns the capacity of the internal RAM circular buffer)
+  - This function is used to control auto-flushing behavior. Flushing occurs when `internal_size()` == `internal_capacity()`.
+  - If not needed, this defaults to `capacity()`
 * `flush()`
   - If output is buffered and will be sent to an output source at a later time, place the actual log writing/sending logic in `flush()`
 * `clear()`
