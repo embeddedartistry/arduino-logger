@@ -187,12 +187,14 @@ class LoggerBase
 	 *
 	 * @param en Echo switch. If true, log statements will also be echo'd to the console through
 	 * printf(). If false, log statements will only go to the log buffer.
-	 * @returns true if echo to console is enabled, false if disabled.
+	 * @returns The prior value that was configured before the call was made, which allows
+	 *	users to restore the previous setting if necessary.
 	 */
 	bool echo(bool en) noexcept
 	{
+		bool setting = echo_;
 		echo_ = en;
-		return echo_;
+		return setting;
 	}
 
 	/** Get the maximum log level (filtering)
