@@ -39,6 +39,12 @@ First, I tried propagating this through the base class using templates. This cau
 
 Rather than doing all of that, I chose to isolate the implementation in a new strategy. This limits the complexity to a single place. Users can opt-in by simply making a strategy that supplies that behavior.
 
+## Fix: Buffering
+
+I need to fix the Teensy classes (and audit for other SD loggers) to use a circular buffer instead of a flat buffer. This is important now that we can overrun!
+
+I pulled in our circular buffer, removed the mutex use, and added APIs that can better support writing tof iles with a flat buffer instead of byte-by-byte. All existing strategies were updated to use the new buffer implementation.
+
 ## Fallback Strategy
 
 We received this question:
@@ -49,9 +55,11 @@ We received this question:
 
 Here's what is required:
 
-1. Adding function overrides to begin() that can be used to initialize the logger with alternative implementations (e.g., an EEPROM object, or no arguments to stick to the underlying circular buffer only)
-2. You will need to store a pointer to the new interface objects inside of the logger strategy class
+1. [x] Adding function overrides to begin() that can be used to initialize the logger with alternative implementations (e.g., an EEPROM object, or no arguments to stick to the underlying circular buffer only)
+2. [x] You will need to store a pointer to the new interface objects inside of the logger strategy class
 3. flush() needs to be updated to handle multiple paths. I would personally tackle this
 4. size() needs to be updated to handle alternative approaches (e.g., right now it only returns file_.size(), but if you have no SD card you have no file_ object initialized)
 5. capacity() needs to be updated to handle alternative approaches
 6. In the startup code, you initialize the necessary components, and then programmatically decide which version of begin() to call.
+
+In the chosen strategy, it turns out we're already using the EEPROM object internally. SO instead there is a begin() API that takes in an address and size. If begin is called with no arguments, only a circular buffer logger in memory is used.

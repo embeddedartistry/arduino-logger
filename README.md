@@ -11,6 +11,7 @@ Flexible logging library for the Arduino SDK. This library allows the same loggi
     2. [Selecting a Logging Strategy](#selecting-a-logging-strategy)
 4. [Compile-time Configuration](#compile-time-configuration)
     1. [Maximum Log Level](#maximum-log-level)
+    2. [Auto-flush Behavior](#auto-flush-behavior)
     2. [Log Name Strings](#log-name-strings)
     3. [Echo to Serial](#echo-to-serial)
 5. [Run-time Configuration](#run-time-configuration)
@@ -221,6 +222,18 @@ You can determine whether an overrun of the buffer contents has occurred by call
     - Note that ALL modules are still constrained by the global log limit maximum.
     - Uses the [SdFat](https://github.com/greiman/SdFat) library, or the [SdFat-beta](https://github.com/greiman/SdFat-beta) library for Teensy boards
     - Checks the reset reason when `begin()` is called and adds the information to the log
++ [Teensy Robust Logger with Modules](src/TeensyRobustModuleLogger.h)
+    - Writes log information to an SD card slot by default
+    - If the SD Card isn't used for initialization (e.g., no SD card found), then either a region in EEPROM or a circular buffer in RAM can be used for log storage
+    - For the SD card, store information in multiple files: logX.txt
+      + Counts from 1..254
+      + Count is persistent across resets. The value is stored in the EEPROM at address 4095
+      + Each boot gets a new log file instance
+    - Internal 512 byte buffer. Data is flushed when the buffer is full, or when `flush()` is called.
+    - The class takes a template param for a module count. You can set different log level limits for each module. Alternative interfaces are provided that allow you to indicate which module is associated with a log statement.
+    - Note that ALL modules are still constrained by the global log limit maximum.
+    - Uses the [SdFat](https://github.com/greiman/SdFat) library, or the [SdFat-beta](https://github.com/greiman/SdFat-beta) library for Teensy boards
+    - Checks the reset reason when `begin()` is called and adds the information to the log
 
 ### Selecting a Logging Strategy
 
@@ -389,6 +402,9 @@ logecho(true); // enables echoing via printf()
   - Demonstrates the use of the TeensySDLogger on a Teensy board using SDIO in FIFO mode. This logger will detect the reboot reason and log that to the file when `begin()` is called.
 * [TeensySDRotationalLogger](examples/TeensySDRotationalLogger)
   - Demonstrates the use of the TeensySDRotationalLogger on a Teensy board using SDIO in FIFO mode. This logger will detect the reboot reason and log that to the file when `begin()` is called. Every time the board resets, a new log file will be created. The log files will increment in count until they reach 254, then they reset back to 1.
+* [TeensyRobustModuleLogger](examples/TeensyRobustModuleLogger)
+  - Demonstrates the use of a TeensyRobustModuleLogger on a Teensy board using SDIO in FIFO Mode. This logger can use the SD card, the EEPROM, or the circular buffer in RAM. This logger will detect the reboot reason and log that to the file when `begin()` is called. With the SD card, every time the board resets, a new log file will be created. The log files will increment in count until they reach 254, then they reset back to 1.
+  - By default, this example also disables auto-flush behavior, and it demonstrates overrun detection logic in the primary loop.
 * [AVRSDRotationalLogger](examples/AVRSDRotationalLogger)
   - Demonstrates the use of the AVRSDRotationalLogger on an ATMega board which has a Wiznet W5500 Ethernet board featuring an SD card slot. This logger will detect the reboot reason and log that to the file when `begin()` is called. Every time the board resets, a new log file will be created. The log files will increment in count until they reach 254, then they reset back to 1.
 * [Circular Log Buffer: Global Instance Interface](examples/CircularLogBuffer_GlobalInst)
