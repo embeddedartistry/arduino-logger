@@ -1,0 +1,57 @@
+# Development Log: 20210415
+
+This log covers the implementation of the following:
+
+- Adding support so that users can add log statements during an interrupt
+- Adding the ability to specify the allowed log level on a per-module basis
+- Implementing a Teensy logging strategy that allows for an EEPROM or circular buffer fallback if the SD card is not present
+
+## Interrupt Logging
+
+We received this request:
+
+> Would like to be able to add an entry into the log during interrupt routines.  The current circular memory queued buffer works fine for that, however default library behavior to initiate a write when that circular buffer happens to be full is a problem if we are in an interrupt routine. Looking for a change which would set it into a state where an overrun condition would be created which could then be later logged by the main loop (which is also where we would control the flush timing).
+
+- Deleted `LOG_LEVEL_INTERRUPT_PREFIX` definition because this is unused in the code. Doesn't actually need to be used for our interrupt solution.
+- Setting will be configured via a simple boolean flag
+- We'll need a function to control the setting. That should return the previously configured value so that we can restore it later.
+- We'll add a new loginterrupt() call that will automatically disable the setting under the hood, log the data, and restore the setting
+	- This means the user still must manually flush outside of interrupt context
+	- Print echoing should also be disabled!
+- We need to add some way to log an overrun condition
+
+Refactoring was required: I needed to move flush behavior into the base class if we're giong to control this through general APIs, rather than duplicating beahvior throughout the strategies. I also disabled auto-flush by default for the circular buffer strategies.
+
+## Per-Module Log Level
+
+We received this request:
+
+> We have multiple major subsystems and if we turn on Debugging level for all of them the data becomes overwhelming and pretty useless.  We could give each subsystem its own log file but then correlating events across them becomes a problem.  Would be interested in an enhancement where logging level could be set by subsystem.
+
+The challenge here is that we need to support two cases: people who want to specify a module, and people who don't!
+
+First, I tried propagating this through the base class using templates. This caused multiple problems:
+
+- Now every strategy has to be aware of the base class template parameter
+- You have to propagate the module template param upward if you want that to be available in your strategy
+- People can only use the default setting like this: AVRCicularLogBuffer<>, which probably isn't ideal for Arduino users
+- There is an explosion in interfaces: you need to duplicate all the log-level calls for taking a module ID and not.
+
+Rather than doing all of that, I chose to isolate the implementation in a new strategy. This limits the complexity to a single place. Users can opt-in by simply making a strategy that supplies that behavior.
+
+## Fallback Strategy
+
+We received this question:
+
+> How would I write startup code so that if I don't find an SD card I basically then instead instantiate a circular memory buffer log?   Or I might implement an eeprom log on a teensy 3.5.
+> So essentially want to fallback to a smaller eeprom storage log, likely with a different log level.
+> Can I do that with startup code and have the main line log calls remain the same?
+
+Here's what is required:
+
+1. Adding function overrides to begin() that can be used to initialize the logger with alternative implementations (e.g., an EEPROM object, or no arguments to stick to the underlying circular buffer only)
+2. You will need to store a pointer to the new interface objects inside of the logger strategy class
+3. flush() needs to be updated to handle multiple paths. I would personally tackle this
+4. size() needs to be updated to handle alternative approaches (e.g., right now it only returns file_.size(), but if you have no SD card you have no file_ object initialized)
+5. capacity() needs to be updated to handle alternative approaches
+6. In the startup code, you initialize the necessary components, and then programmatically decide which version of begin() to call.
