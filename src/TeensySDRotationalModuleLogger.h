@@ -4,8 +4,8 @@
 #include "Arduino.h"
 #include "ArduinoLogger.h"
 #include "SdFat.h"
-#include <EEPROM.h>
 #include "internal/circular_buffer.hpp"
+#include <EEPROM.h>
 #include <kinetis.h>
 
 /** Rotational SD File Buffer with per-Module Log Levels

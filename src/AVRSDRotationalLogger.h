@@ -4,9 +4,9 @@
 #include "Arduino.h"
 #include "ArduinoLogger.h"
 #include "SdFat.h"
+#include "internal/circular_buffer.hpp"
 #include <EEPROM.h>
 #include <avr/wdt.h>
-#include "internal/circular_buffer.hpp"
 
 /** AVR SD File Buffer
  *
