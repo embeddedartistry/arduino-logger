@@ -122,7 +122,7 @@ class SDFileLogger final : public LoggerBase
   private:
 	SdFs* fs_;
 	const char* filename_ = "log.txt";
-	FsFile file_;
+	mutable FsFile file_;
 
 	char buffer_[BUFFER_SIZE] = {0};
 	size_t counter = 0;
