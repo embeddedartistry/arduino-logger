@@ -28,7 +28,6 @@
 #define LOG_LEVEL_WARNING_PREFIX "<W> "
 #define LOG_LEVEL_INFO_PREFIX "<I> "
 #define LOG_LEVEL_DEBUG_PREFIX "<D> "
-#define LOG_LEVEL_INTERRUPT_PREFIX "<int> "
 
 // Supply a default log level
 #ifndef LOG_LEVEL
