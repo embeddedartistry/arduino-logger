@@ -210,6 +210,17 @@ You can determine whether an overrun of the buffer contents has occurred by call
     - Internal 512 byte buffer. Data is flushed when the buffer is full, or when `flush()` is called.
     - Uses the [SdFat](https://github.com/greiman/SdFat) library, or the [SdFat-beta](https://github.com/greiman/SdFat-beta) library for Teensy boards
     - Checks the reset reason when `begin()` is called and adds the information to the log
+* [Teensy Rotational SD Logger with Modules](src/TeensyRotationalSDModuleLogger.h)
+    - Writes log information to an SD card slot
+    - Stores information in multiple files: logX.txt
+      + Counts from 1..254
+      + Count is persistent across resets. The value is stored in the EEPROM at address 4095
+      + Each boot gets a new log file instance
+    - Internal 512 byte buffer. Data is flushed when the buffer is full, or when `flush()` is called.
+    - The class takes a template param for a module count. You can set different log level limits for each module. Alternative interfaces are provided that allow you to indicate which module is associated with a log statement.
+    - Note that ALL modules are still constrained by the global log limit maximum.
+    - Uses the [SdFat](https://github.com/greiman/SdFat) library, or the [SdFat-beta](https://github.com/greiman/SdFat-beta) library for Teensy boards
+    - Checks the reset reason when `begin()` is called and adds the information to the log
 
 ### Selecting a Logging Strategy
 
