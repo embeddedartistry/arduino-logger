@@ -5,7 +5,7 @@
 #include "ArduinoLogger.h"
 #include "SdFat.h"
 #include <EEPROM.h>
-#include <internal/ring_span.hpp>
+#include "internal/circular_buffer.hpp"
 #include <kinetis.h>
 
 /** SD File Buffer
@@ -68,15 +68,7 @@ class TeensySDRotationalLogger final : public LoggerBase
 		log_reset_reason();
 
 		// Manually flush, since the file is open
-		if(counter)
-		{
-			if(counter != file_.write(buffer_, counter))
-			{
-				errorHalt("Failed to write to log file");
-			}
-
-			counter = 0;
-		}
+		flush();
 
 		file_.close();
 	}
@@ -90,40 +82,28 @@ class TeensySDRotationalLogger final : public LoggerBase
   protected:
 	void log_putc(char c) noexcept final
 	{
-		buffer_[counter] = c;
-		counter++;
+		log_buffer_.put(c);
 	}
 
 	size_t internal_size() const noexcept override
 	{
-		return counter;
+		return log_buffer_.size();
 	}
 
 	size_t internal_capacity() const noexcept override
 	{
-		return BUFFER_SIZE;
+		return log_buffer_.capacity();
 	}
+
 
 	void flush_() noexcept final
 	{
-		if(!file_.open(filename_, O_WRITE | O_APPEND))
-		{
-			errorHalt("Failed to open file");
-		}
-
-		if(counter != file_.write(buffer_, counter))
-		{
-			errorHalt("Failed to write to log file");
-		}
-
-		counter = 0;
-
-		file_.close();
+		writeBufferToSDFile();
 	}
 
 	void clear_() noexcept final
 	{
-		counter = 0;
+		log_buffer_.reset();
 	}
 
   private:
@@ -142,6 +122,41 @@ class TeensySDRotationalLogger final : public LoggerBase
 		while(true)
 		{
 		}
+	}
+
+	void writeBufferToSDFile()
+	{
+		if(!file_.open(filename_, O_WRITE | O_APPEND))
+		{
+			errorHalt("Failed to open file");
+		}
+
+		int bytes_written = 0;
+
+		// We need to get the front, the rear, and potentially write the files in two steps
+		// to prevent ordering problems
+		size_t head = log_buffer_.head();
+		size_t tail = log_buffer_.tail();
+		const char* buffer = log_buffer_.storage();
+
+		if(head > tail)
+		{
+			// we have a wraparound case
+			// We will write from buffer[head] to buffer[size] in one go
+			// Then we'll reset head to 0 so that we can write 0 to tail next
+			bytes_written = file_.write(&buffer[head], log_buffer_.capacity());
+		}
+
+		bytes_written += file_.write(buffer, tail);
+
+		if(static_cast<size_t>(bytes_written) != log_buffer_.size())
+		{
+			errorHalt("Failed to write to log file");
+		}
+
+		log_buffer_.reset();
+
+		file_.close();
 	}
 
 	/// Checks the kinetis SoC's reset reason registers and logs them
@@ -226,8 +241,7 @@ class TeensySDRotationalLogger final : public LoggerBase
 	char filename_[FILENAME_SIZE];
 	mutable FsFile file_;
 
-	char buffer_[BUFFER_SIZE] = {0};
-	size_t counter = 0;
+	CircularBuffer<char, BUFFER_SIZE> log_buffer_;
 };
 
 #endif // SD_FILE_LOGGER_H_

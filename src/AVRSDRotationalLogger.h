@@ -6,6 +6,7 @@
 #include "SdFat.h"
 #include <EEPROM.h>
 #include <avr/wdt.h>
+#include "internal/circular_buffer.hpp"
 
 /** AVR SD File Buffer
  *
@@ -67,16 +68,7 @@ class AVRSDRotationalLogger final : public LoggerBase
 		log_reset_reason();
 
 		// Manually flush, since the file is open
-		if(counter)
-		{
-			int r = file_.write(buffer_, counter);
-			if(r < 0 || counter != static_cast<size_t>(r))
-			{
-				errorHalt("Failed to write to log file");
-			}
-
-			counter = 0;
-		}
+		flush();
 
 		file_.close();
 	}
@@ -90,41 +82,27 @@ class AVRSDRotationalLogger final : public LoggerBase
   protected:
 	void log_putc(char c) noexcept final
 	{
-		buffer_[counter] = c;
-		counter++;
+		log_buffer_.put(c);
 	}
 
 	void flush_() noexcept final
 	{
-		if(!file_.open(filename_, O_WRITE | O_APPEND))
-		{
-			errorHalt("Failed to open file");
-		}
-
-		int r = file_.write(buffer_, counter);
-		if(r < 0 || counter != static_cast<size_t>(r))
-		{
-			errorHalt("Failed to write to log file");
-		}
-
-		counter = 0;
-
-		file_.close();
+		writeBufferToSDFile();
 	}
 
 	void clear_() noexcept final
 	{
-		counter = 0;
+		log_buffer_.reset();
 	}
 
 	size_t internal_size() const noexcept override
 	{
-		return counter;
+		return log_buffer_.size();
 	}
 
 	size_t internal_capacity() const noexcept override
 	{
-		return BUFFER_SIZE;
+		return log_buffer_.capacity();
 	}
 
   private:
@@ -187,13 +165,47 @@ class AVRSDRotationalLogger final : public LoggerBase
 		EEPROM.write(EEPROM_LOG_STORAGE_ADDR, static_cast<uint8_t>(value + 1));
 	}
 
+	void writeBufferToSDFile()
+	{
+		if(!file_.open(filename_, O_WRITE | O_APPEND))
+		{
+			errorHalt("Failed to open file");
+		}
+
+		int bytes_written = 0;
+
+		// We need to get the front, the rear, and potentially write the files in two steps
+		// to prevent ordering problems
+		size_t head = log_buffer_.head();
+		size_t tail = log_buffer_.tail();
+		const char* buffer = log_buffer_.storage();
+
+		if(head > tail)
+		{
+			// we have a wraparound case
+			// We will write from buffer[head] to buffer[size] in one go
+			// Then we'll reset head to 0 so that we can write 0 to tail next
+			bytes_written = file_.write(&buffer[head], log_buffer_.capacity());
+		}
+
+		bytes_written += file_.write(buffer, tail);
+
+		if(static_cast<size_t>(bytes_written) != log_buffer_.size())
+		{
+			errorHalt("Failed to write to log file");
+		}
+
+		log_buffer_.reset();
+
+		file_.close();
+	}
+
   private:
 	SdFs* fs_;
 	char filename_[FILENAME_SIZE];
 	FsFile file_;
 
-	char buffer_[BUFFER_SIZE] = {0};
-	size_t counter = 0;
+	CircularBuffer<char, BUFFER_SIZE> log_buffer_;
 };
 
 #endif // AVR_SD_FILE_LOGGER_H_
