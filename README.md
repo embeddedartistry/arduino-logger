@@ -154,6 +154,23 @@ If the selected logging implementation requires that the program logic controls 
 
 You can clear all contents from the log buffer using `logclear()`. This will empty the buffer, but will not flush the contents to the output.
 
+### Logging from an Interrupt Context
+
+If you are logging from an interrupt context, you do not want `flush()` to be called if the buffer is full. Echoing the log call via `printf` must also be disabled. 
+
+You can achieve this behavior with two strategies:
+
+1. Disabling auto-flushing by:
+  1. Setting the appropriate defaults for the `LOG_AUTOFLUSH_DEFAULT` and `LOG_ECHO_EN_DEFAULT` definitions
+  2. Calling the `auto_flush()` member function with `false` and calling the `echo()` member function with `false`.
+2. Calling the `log_interrupt()` member function, which will temporarily disable these two settings, add the statement to the log buffer, and re-enable the previous settings. Helper functions for each level are also provided: `log_warning_interrupt`, `log_debug_interrupt`, etc.
+
+When auto-flushing is disabled, the user becomes fully responsible for calling `flush()`. as part of the program logic.
+
+When calling `log_interrupt()` with flushing enabled, the buffer will not be auto-flushed until the next `log()` call. Users can still manually flush with the `flush()` API.
+
+You can determine whether an overrun of the buffer contents has occurred by calling `has_overrun()`. The value of this flag is reset after calling `flush()` and `clear()`.
+
 ### Provided Logging Implementations
 
 * [Circular Log Buffer](src/CircularBufferLogger.h)
@@ -268,13 +285,32 @@ You can also define the `LOG_LEVEL` macro in your `platform_logger.h` file, befo
 #include <CircularBufferLogger.h>
 ```
 
-Currently, compile-time filtering is only supported if you use the global logger instance with the provided library macros.
+**Currently, compile-time filtering is only supported if you use the global logger instance with the provided library macros.**
+
+### Auto-Flush Behavior
+
+By default, the logging library will automatically flush the contents of the log buffer whenever the contents of the buffer are full. 
+
+You can change the default setting at compile-time using the `LOG_AUTOFLUSH_DEFAULT` definition.
+
+```
+-DLOG_AUTOFLUSH_DEFAULT=false
+```
+
+You can also define the desired value in `platform_logger.h` before including the necessary logging strategy header.
+
+```
+#define LOG_AUTOFLUSH_DEFAULT false
+#include <CircularBufferLogger.h>
+```
+
+The method used to flush the data depends on the selected logging strategy.
 
 ### Log Name Strings
 
 You can re-define the `LOG_LEVEL_NAMES` and `LOG_LEVEL_SHORT_NAMES` macros to provide your own string name definitions for each logging level.
 
-These settings can be changed in the build system, but it is easiest to define them in `platform_logger.h` before including the necessary logging library header.
+These settings can be changed in the build system, but it is easiest to define them in `platform_logger.h` before including the necessary strategy library header.
 
 ### Echo to Serial
 
@@ -297,7 +333,7 @@ The setting can be changed in your build system or by defining the desired value
 
 You can remove all logging calls from the binary at compile-time by defining `LOG_EN_DEFAULT` to `false`. 
 
-The setting can be changed in your build system or by defining the desired value in `platform_logger.h` before including the necessary logging library header.
+The setting can be changed in your build system or by defining the desired value in `platform_logger.h` before including the necessary strategy library header.
 
 ```
 -DLOG_EN_DEFAULT=false

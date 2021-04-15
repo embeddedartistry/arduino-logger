@@ -1,6 +1,12 @@
 #ifndef AVR_CIRCULAR_BUFFER_LOGGER_H_
 #define AVR_CIRCULAR_BUFFER_LOGGER_H_
 
+// By default, this logging strategy does not auto-flush
+// You can still override this default setting if desired.
+#ifndef LOG_AUTOFLUSH_DEFAULT
+#define LOG_AUTOFLUSH_DEFAULT false
+#endif
+
 #include "ArduinoLogger.h"
 #include "internal/Queue.h"
 #include <avr/wdt.h>
@@ -83,7 +89,13 @@ class AVRCircularLogBufferLogger final : public LoggerBase
 		return log_buffer_.capacity();
 	}
 
-	void flush() noexcept final
+  protected:
+	void log_putc(char c) noexcept final
+	{
+		log_buffer_.push(c);
+	}
+
+	void flush_() noexcept final
 	{
 		while(!log_buffer_.empty())
 		{
@@ -91,15 +103,9 @@ class AVRCircularLogBufferLogger final : public LoggerBase
 		}
 	}
 
-	void clear() noexcept final
+	void clear_() noexcept final
 	{
 		log_buffer_.clear();
-	}
-
-  protected:
-	void log_putc(char c) noexcept final
-	{
-		log_buffer_.push(c);
 	}
 
   private:

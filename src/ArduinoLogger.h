@@ -45,6 +45,11 @@
 #define LOG_EN_DEFAULT true
 #endif
 
+#ifndef LOG_AUTOFLUSH_DEFAULT
+/// Whether the log should auto-flush by default on boot
+#define LOG_AUTOFLUSH_DEFAULT true
+#endif
+
 #ifndef LOG_ECHO_EN_DEFAULT
 /// Indicates that log statements should be echoed to the console
 /// If true, log statements will be echoed.
@@ -221,6 +226,52 @@ class LoggerBase
 		return level_;
 	}
 
+	/** Enable or disable the auto-flush behavior
+	*
+	* If enabled, the log() call will flush the contents of the buffer whenever
+	* a write is attempted while the buffer is full. If disabled, this will
+	* not occur. Instead, the user must manually call `flush()` to
+	*
+	* @param enabled True enables auto-flush behavior in log(), false disables it.
+	*	When disabled, the user must manually flush() the log buffer contents.
+	* @returns The auto-flush setting in place prior to this call. This allows
+	* 	you to capture the return value, perform some actions, and restore the value
+	*	once you have completed your work.
+	*	@code
+	*	// Disable auto-flush
+	*	bool setting = log.auto_flush(false);
+	*	log.warning(...);
+	*	// Restore previous setting
+	*	log.auto_flush(setting);
+	*	@endcode
+	*/
+	bool auto_flush(bool enabled)
+	{
+		bool prior = auto_flush_;
+		auto_flush_ = enabled;
+		return prior;
+	}
+
+	/** Check whether auto-flush is enabled.
+	*
+	* @returns the current auto-flush behavior setting
+	*/
+	bool auto_flush()
+	{
+		return auto_flush_;
+	}
+
+	/** Check for a buffer overrun condition.
+	*
+	* @returns a boolean indicating whether or not an overrun condition has occured
+	*	since the last time flush() was called. If `true`, this indicates that data
+	* 	has been lost from the log buffer.
+	*/
+	bool has_overrun()
+	{
+		return overrun_occurred_;
+	}
+
 	template<typename... Args>
 	void critical(const char* fmt, const Args&... args)
 	{
@@ -228,6 +279,16 @@ class LoggerBase
 		log(log_level_e::critical, fmt, args...);
 #else
 		log(log_level_e::critical, fmt, std::forward<const Args>(args)...);
+#endif
+	}
+
+	template<typename... Args>
+	void critical_interrupt(const char* fmt, const Args&... args)
+	{
+#if defined(__AVR__)
+		log_interrupt(log_level_e::critical, fmt, args...);
+#else
+		log_interrupt(log_level_e::critical, fmt, std::forward<const Args>(args)...);
 #endif
 	}
 
@@ -242,12 +303,32 @@ class LoggerBase
 	}
 
 	template<typename... Args>
+	void error_interrupt(const char* fmt, const Args&... args)
+	{
+#if defined(__AVR__)
+		log_interrupt(log_level_e::error, fmt, args...);
+#else
+		log_interrupt(log_level_e::error, fmt, std::forward<const Args>(args)...);
+#endif
+	}
+
+	template<typename... Args>
 	void warning(const char* fmt, const Args&... args)
 	{
 #if defined(__AVR__)
 		log(log_level_e::warning, fmt, args...);
 #else
 		log(log_level_e::warning, fmt, std::forward<const Args>(args)...);
+#endif
+	}
+
+	template<typename... Args>
+	void warning_interrupt(const char* fmt, const Args&... args)
+	{
+#if defined(__AVR__)
+		log_interrupt(log_level_e::warning, fmt, args...);
+#else
+		log_interrupt(log_level_e::warning, fmt, std::forward<const Args>(args)...);
 #endif
 	}
 
@@ -262,12 +343,32 @@ class LoggerBase
 	}
 
 	template<typename... Args>
+	void info_interrupt(const char* fmt, const Args&... args)
+	{
+#if defined(__AVR__)
+		log_interrupt(log_level_e::info, fmt, args...);
+#else
+		log_interrupt(log_level_e::info, fmt, std::forward<const Args>(args)...);
+#endif
+	}
+
+	template<typename... Args>
 	void debug(const char* fmt, const Args&... args)
 	{
 #if defined(__AVR__)
 		log(log_level_e::debug, fmt, args...);
 #else
 		log(log_level_e::debug, fmt, std::forward<const Args>(args)...);
+#endif
+	}
+
+	template<typename... Args>
+	void debug_interrupt(const char* fmt, const Args&... args)
+	{
+#if defined(__AVR__)
+		log_interrupt(log_level_e::debug, fmt, args...);
+#else
+		log_interrupt(log_level_e::debug, fmt, std::forward<const Args>(args)...);
 #endif
 	}
 
@@ -281,6 +382,39 @@ class LoggerBase
 		{
 			// cppcheck-suppress wrongPrintfScanfArgNum
 			printf(args...);
+		}
+	}
+
+	/** Add data to the log buffer from an interrupt context
+	 *
+	 * This call will disable auto-echo and auto-flush behavior for the duration
+	 * of this function call.
+	 *
+	 * @tparam Args Variadic template args. Will be deduced by the compiler. Enables support for
+	 *	a variadic function template.
+	 * @param l The log level associated with this statement.
+	 * @param fmt The log format string.
+	 * @param args The variadic arguments that are associated with the format string.
+	 */
+	template<typename... Args>
+	void log_interrupt(log_level_e l, const char* fmt, const Args&... args) noexcept
+	{
+		if(enabled_ && l <= level_)
+		{
+			bool flush_setting = auto_flush(false);
+			bool echo_setting = echo(false);
+
+			// Add our prefix
+			print("%s", LOG_LEVEL_TO_SHORT_C_STRING(l));
+
+			log_customprefix();
+
+			// Send the primary log statement
+			print(fmt, args...);
+
+			// Restore prior settings
+			auto_flush(flush_setting);
+			echo(echo_setting);
 		}
 	}
 
@@ -307,25 +441,21 @@ class LoggerBase
 		}
 	}
 
-	/** Print the buffered log contents to the target output stream
-	 *
-	 * When called, the contents of the log buffer will be removed and placed into
-	 * the target output stream.
-	 *
-	 * Outputs can be any target. You will notice many example implementations print
-	 * the log buffer contents to Serial when flush() is called.
-	 *
-	 * Derived classes must implement this function.
-	 */
-	virtual void flush() noexcept {}
+	/// Flush the buffered log contents to the target output stream
+	/// Wrapper for flush_ that resets the overrun_occurred_ flag
+	/// Can be overridden if desired
+	virtual void flush() noexcept {
+		overrun_occurred_ = false;
+		flush_();
+	}
 
-	/** Clear the contents of the log buffer.
-	 *
-	 * Reset the log buffer to an empty state.
-	 *
-	 * @post The log buffer will be empty.
-	 */
-	virtual void clear() noexcept {}
+	/// Clear the contents of the log buffer
+	/// Wrapper for clear_ that resets the overrun_occurred_ flag
+	/// Can be overridden if desired
+	virtual void clear() noexcept {
+		overrun_occurred_ = false;
+		clear_();
+	}
 
   protected:
 	/// Default constructor
@@ -348,6 +478,26 @@ class LoggerBase
 
 	/// Default destructor
 	virtual ~LoggerBase() = default;
+
+	/** Flush the buffered log contents to the target output stream
+	 *
+	 * When called, the contents of the internal log buffer will be removed and placed into
+	 * the target output stream.
+	 *
+	 * Outputs can be any target. You will notice many example implementations print
+	 * the log buffer contents to Serial when flush() is called.
+	 *
+	 * Derived classes must implement this function.
+	 */
+	virtual void flush_() noexcept {}
+
+	/** Clear the contents of the log buffer.
+	 *
+	 * Reset the log buffer to an empty state.
+	 *
+	 * @post The log buffer will be empty.
+	 */
+	virtual void clear_() noexcept {}
 
 	/** Add a custom prefix to the log file
 	 *
@@ -389,7 +539,14 @@ class LoggerBase
 	{
 		if(internal_size() == internal_capacity())
 		{
-			flush();
+			if(auto_flush())
+			{
+				flush();
+			}
+			else
+			{
+				overrun_occurred_ = true;
+			}
 		}
 
 		log_putc(c);
@@ -448,6 +605,14 @@ class LoggerBase
   private:
 	/// Indicates whether logging is currently enabled
 	bool enabled_ = LOG_EN_DEFAULT;
+
+	/// Indicates whether the library will auto-flush during log() if the buffer
+	/// is full. If disabled, the user is responsible for coordinating flush() calls.
+	bool auto_flush_ = LOG_AUTOFLUSH_DEFAULT;
+
+	/// Indicates whether an overrun has occurred between flush() calls. If this is `true`,
+	/// then you know data has been lost.
+	bool overrun_occurred_ = false;
 
 	/// The current log level.
 	/// Levels greater than the current setting will be filtered out.
@@ -540,6 +705,56 @@ class PlatformLogger_t
 	}
 
 	template<typename... Args>
+	inline static void critical_interrupt(const char* fmt, const Args&... args)
+	{
+#if defined(__AVR__)
+		inst().critical_interrupt(fmt, args...);
+#else
+		inst().critical_interrupt(fmt, std::forward<const Args>(args)...);
+#endif
+	}
+
+	template<typename... Args>
+	inline static void error_interrupt(const char* fmt, const Args&... args)
+	{
+#if defined(__AVR__)
+		inst().error_interrupt(fmt, args...);
+#else
+		inst().error_interrupt(fmt, std::forward<const Args>(args)...);
+#endif
+	}
+
+	template<typename... Args>
+	inline static void warning_interrupt(const char* fmt, const Args&... args)
+	{
+#if defined(__AVR__)
+		inst().warning_interrupt(fmt, args...);
+#else
+		inst().warning_interrupt(fmt, std::forward<const Args>(args)...);
+#endif
+	}
+
+	template<typename... Args>
+	inline static void info_interrupt(const char* fmt, const Args&... args)
+	{
+#if defined(__AVR__)
+		inst().info_interrupt(fmt, args...);
+#else
+		inst().info_interrupt(fmt, std::forward<const Args>(args)...);
+#endif
+	}
+
+	template<typename... Args>
+	inline static void debug_interrupt(const char* fmt, const Args&... args)
+	{
+#if defined(__AVR__)
+		inst().debug_interrupt(fmt, args...);
+#else
+		inst().debug_interrupt(fmt, std::forward<const Args>(args)...);
+#endif
+	}
+
+	template<typename... Args>
 	inline static void print(const char* fmt, const Args&... args)
 	{
 #if defined(__AVR__)
@@ -567,6 +782,16 @@ class PlatformLogger_t
 	inline static bool echo(bool en)
 	{
 		return inst().echo(en);
+	}
+
+	inline static bool auto_flush(bool enabled)
+	{
+		return inst().auto_flush(enabled);
+	}
+
+	inline static bool has_overrun()
+	{
+		return inst().has_overrun();
 	}
 };
 

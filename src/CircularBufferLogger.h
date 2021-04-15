@@ -1,6 +1,12 @@
 #ifndef CIRCULAR_BUFFER_LOGGER_H_
 #define CIRCULAR_BUFFER_LOGGER_H_
 
+// By default, this logging strategy does not auto-flush
+// You can still override this default setting if desired.
+#ifndef LOG_AUTOFLUSH_DEFAULT
+#define LOG_AUTOFLUSH_DEFAULT false
+#endif
+
 #include "ArduinoLogger.h"
 #include "internal/ring_span.hpp"
 
@@ -57,7 +63,13 @@ class CircularLogBufferLogger final : public LoggerBase
 		return log_buffer_.capacity();
 	}
 
-	void flush() noexcept final
+  protected:
+	void log_putc(char c) noexcept final
+	{
+		log_buffer_.push_back(c);
+	}
+
+	void flush_() noexcept final
 	{
 		while(!log_buffer_.empty())
 		{
@@ -65,18 +77,12 @@ class CircularLogBufferLogger final : public LoggerBase
 		}
 	}
 
-	void clear() noexcept final
+	void clear_() noexcept final
 	{
 		while(!log_buffer_.empty())
 		{
 			log_buffer_.pop_front();
 		}
-	}
-
-  protected:
-	void log_putc(char c) noexcept final
-	{
-		log_buffer_.push_back(c);
 	}
 
   private:

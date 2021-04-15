@@ -42,28 +42,6 @@ class SDFileLogger final : public LoggerBase
 		return fs_ ? fs_->card()->sectorCount() << 9 : 0;
 	}
 
-	void flush() noexcept final
-	{
-		if(!file_.open(filename_, O_WRITE | O_APPEND))
-		{
-			errorHalt("Failed to open file");
-		}
-
-		if(counter != file_.write(buffer_, counter))
-		{
-			errorHalt("Failed to write to log file");
-		}
-
-		counter = 0;
-
-		file_.close();
-	}
-
-	void clear() noexcept final
-	{
-		counter = 0;
-	}
-
 	void log_customprefix() noexcept final
 	{
 		print("[%d ms] ", millis());
@@ -99,6 +77,28 @@ class SDFileLogger final : public LoggerBase
 	size_t internal_capacity() const noexcept override
 	{
 		return BUFFER_SIZE;
+	}
+
+	void flush_() noexcept final
+	{
+		if(!file_.open(filename_, O_WRITE | O_APPEND))
+		{
+			errorHalt("Failed to open file");
+		}
+
+		if(counter != file_.write(buffer_, counter))
+		{
+			errorHalt("Failed to write to log file");
+		}
+
+		counter = 0;
+
+		file_.close();
+	}
+
+	void clear_() noexcept final
+	{
+		counter = 0;
 	}
 
   private:

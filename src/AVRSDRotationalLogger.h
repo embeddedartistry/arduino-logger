@@ -45,29 +45,6 @@ class AVRSDRotationalLogger final : public LoggerBase
 		return fs_ ? fs_->card()->sectorCount() << 9 : 0;
 	}
 
-	void flush() noexcept final
-	{
-		if(!file_.open(filename_, O_WRITE | O_APPEND))
-		{
-			errorHalt("Failed to open file");
-		}
-
-		int r = file_.write(buffer_, counter);
-		if(r < 0 || counter != static_cast<size_t>(r))
-		{
-			errorHalt("Failed to write to log file");
-		}
-
-		counter = 0;
-
-		file_.close();
-	}
-
-	void clear() noexcept final
-	{
-		counter = 0;
-	}
-
 	void log_customprefix() noexcept final
 	{
 		print("[%u ms] ", millis());
@@ -115,6 +92,29 @@ class AVRSDRotationalLogger final : public LoggerBase
 	{
 		buffer_[counter] = c;
 		counter++;
+	}
+
+	void flush_() noexcept final
+	{
+		if(!file_.open(filename_, O_WRITE | O_APPEND))
+		{
+			errorHalt("Failed to open file");
+		}
+
+		int r = file_.write(buffer_, counter);
+		if(r < 0 || counter != static_cast<size_t>(r))
+		{
+			errorHalt("Failed to write to log file");
+		}
+
+		counter = 0;
+
+		file_.close();
+	}
+
+	void clear_() noexcept final
+	{
+		counter = 0;
 	}
 
 	size_t internal_size() const noexcept override
