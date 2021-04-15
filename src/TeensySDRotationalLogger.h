@@ -224,7 +224,7 @@ class TeensySDRotationalLogger final : public LoggerBase
   private:
 	SdFs* fs_;
 	char filename_[FILENAME_SIZE];
-	FsFile file_;
+	mutable FsFile file_;
 
 	char buffer_[BUFFER_SIZE] = {0};
 	size_t counter = 0;
