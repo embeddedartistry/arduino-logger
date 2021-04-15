@@ -8,7 +8,7 @@
 #endif
 
 #include "ArduinoLogger.h"
-#include "internal/Queue.h"
+#include "internal/circular_buffer.hpp"
 #include <avr/wdt.h>
 
 /** Circular log buffer
@@ -92,24 +92,24 @@ class AVRCircularLogBufferLogger final : public LoggerBase
   protected:
 	void log_putc(char c) noexcept final
 	{
-		log_buffer_.push(c);
+		log_buffer_.put(c);
 	}
 
 	void flush_() noexcept final
 	{
 		while(!log_buffer_.empty())
 		{
-			_putchar(log_buffer_.pop());
+			_putchar(log_buffer_.get());
 		}
 	}
 
 	void clear_() noexcept final
 	{
-		log_buffer_.clear();
+		log_buffer_.reset();
 	}
 
   private:
-	Queue<char> log_buffer_{TBufferSize};
+	CircularBuffer<char, TBufferSize> log_buffer_;
 };
 
 #endif // AVR_CIRCULAR_BUFFER_LOGGER_H_
