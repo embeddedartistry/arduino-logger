@@ -26,7 +26,7 @@ This library requires the following Arduino library to be installed on your syst
 
 Some pre-built logging classes will depend on other libraries to be installed, such as:
 
-* [greiman/SdFat-beta](https://github.com/greiman/SdFat-beta)
+* [greiman/SdFat](https://github.com/greiman/SdFat) (version 2)
 
 ## Logging Basics
 
