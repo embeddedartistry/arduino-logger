@@ -42,14 +42,14 @@
 
 #ifndef LOG_EN_DEFAULT
 /// Whether the logging module is enabled automatically on boot.
-#define LOG_EN_DEFAULT 1
+#define LOG_EN_DEFAULT true
 #endif
 
 #ifndef LOG_ECHO_EN_DEFAULT
 /// Indicates that log statements should be echoed to the console
 /// If true, log statements will be echoed.
 /// If false, log statements will only go to the log.
-#define LOG_ECHO_EN_DEFAULT 0
+#define LOG_ECHO_EN_DEFAULT false
 #endif
 
 #ifndef LOG_LEVEL_NAMES
