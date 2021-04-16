@@ -4,8 +4,8 @@
 #include "Arduino.h"
 #include "ArduinoLogger.h"
 #include "SdFat.h"
-#include <EEPROM.h>
 #include "internal/circular_buffer.hpp"
+#include <EEPROM.h>
 #include <kinetis.h>
 
 /** SD File Buffer
@@ -94,7 +94,6 @@ class TeensySDRotationalLogger final : public LoggerBase
 	{
 		return log_buffer_.capacity();
 	}
-
 
 	void flush_() noexcept final
 	{

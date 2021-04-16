@@ -1,6 +1,7 @@
-template <class T, size_t TCount>
-class CircularBuffer {
-public:
+template<class T, size_t TCount>
+class CircularBuffer
+{
+  public:
 	CircularBuffer() = default;
 
 	void put(T item)
@@ -19,13 +20,12 @@ public:
 
 	T get()
 	{
-
 		if(empty())
 		{
 			return T();
 		}
 
-		//Read data and advance the tail (we now have a free space)
+		// Read data and advance the tail (we now have a free space)
 		auto val = buf_[tail_];
 		full_ = false;
 		tail_ = (tail_ + 1) % max_size_;
@@ -41,13 +41,13 @@ public:
 
 	bool empty() const
 	{
-		//if head and tail are equal, we are empty
+		// if head and tail are equal, we are empty
 		return (!full_ && (head_ == tail_));
 	}
 
 	bool full() const
 	{
-		//If tail is ahead the head by 1, we are full
+		// If tail is ahead the head by 1, we are full
 		return full_;
 	}
 
@@ -90,7 +90,7 @@ public:
 		return &buf_[0];
 	}
 
-private:
+  private:
 	size_t head_ = 0;
 	size_t tail_ = 0;
 	const size_t max_size_ = TCount;

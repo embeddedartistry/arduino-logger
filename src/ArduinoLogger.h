@@ -80,9 +80,9 @@ using cstr = const char* const;
 
 constexpr cstr past_last_slash(cstr str, cstr last_slash)
 {
-	return *str == '\0' ? last_slash
-						: *str == '/' ? past_last_slash(str + 1, str + 1)
-									  : past_last_slash(str + 1, last_slash);
+	return *str == '\0'	 ? last_slash
+		   : *str == '/' ? past_last_slash(str + 1, str + 1)
+						 : past_last_slash(str + 1, last_slash);
 }
 
 constexpr cstr past_last_slash(cstr str)
@@ -227,24 +227,24 @@ class LoggerBase
 	}
 
 	/** Enable or disable the auto-flush behavior
-	*
-	* If enabled, the log() call will flush the contents of the buffer whenever
-	* a write is attempted while the buffer is full. If disabled, this will
-	* not occur. Instead, the user must manually call `flush()` to
-	*
-	* @param enabled True enables auto-flush behavior in log(), false disables it.
-	*	When disabled, the user must manually flush() the log buffer contents.
-	* @returns The auto-flush setting in place prior to this call. This allows
-	* 	you to capture the return value, perform some actions, and restore the value
-	*	once you have completed your work.
-	*	@code
-	*	// Disable auto-flush
-	*	bool setting = log.auto_flush(false);
-	*	log.warning(...);
-	*	// Restore previous setting
-	*	log.auto_flush(setting);
-	*	@endcode
-	*/
+	 *
+	 * If enabled, the log() call will flush the contents of the buffer whenever
+	 * a write is attempted while the buffer is full. If disabled, this will
+	 * not occur. Instead, the user must manually call `flush()` to
+	 *
+	 * @param enabled True enables auto-flush behavior in log(), false disables it.
+	 *	When disabled, the user must manually flush() the log buffer contents.
+	 * @returns The auto-flush setting in place prior to this call. This allows
+	 * 	you to capture the return value, perform some actions, and restore the value
+	 *	once you have completed your work.
+	 *	@code
+	 *	// Disable auto-flush
+	 *	bool setting = log.auto_flush(false);
+	 *	log.warning(...);
+	 *	// Restore previous setting
+	 *	log.auto_flush(setting);
+	 *	@endcode
+	 */
 	bool auto_flush(bool enabled)
 	{
 		bool prior = auto_flush_;
@@ -253,20 +253,20 @@ class LoggerBase
 	}
 
 	/** Check whether auto-flush is enabled.
-	*
-	* @returns the current auto-flush behavior setting
-	*/
+	 *
+	 * @returns the current auto-flush behavior setting
+	 */
 	bool auto_flush()
 	{
 		return auto_flush_;
 	}
 
 	/** Check for a buffer overrun condition.
-	*
-	* @returns a boolean indicating whether or not an overrun condition has occured
-	*	since the last time flush() was called. If `true`, this indicates that data
-	* 	has been lost from the log buffer.
-	*/
+	 *
+	 * @returns a boolean indicating whether or not an overrun condition has occured
+	 *	since the last time flush() was called. If `true`, this indicates that data
+	 * 	has been lost from the log buffer.
+	 */
 	bool has_overrun()
 	{
 		return overrun_occurred_;
@@ -456,7 +456,8 @@ class LoggerBase
 	/// Clear the contents of the log buffer
 	/// Wrapper for clear_ that resets the overrun_occurred_ flag
 	/// Can be overridden if desired
-	virtual void clear() noexcept {
+	virtual void clear() noexcept
+	{
 		overrun_occurred_ = false;
 		clear_();
 	}
@@ -530,15 +531,15 @@ class LoggerBase
 	virtual void log_putc(char c) = 0;
 
 	/** Helper function for logging to the buffer.
-	*
-	* If auto-flushing is enabled, we check whether the RAM buffer storage
-	* is full and then call flush(). Otherwise, we forward the character to
-	* the logging strategy's log_putc() implementation.
-	*
-	* Deived classes may override this function if desired.
-	*
-	* @param c The character to insert into the log buffer.
-	*/
+	 *
+	 * If auto-flushing is enabled, we check whether the RAM buffer storage
+	 * is full and then call flush(). Otherwise, we forward the character to
+	 * the logging strategy's log_putc() implementation.
+	 *
+	 * Deived classes may override this function if desired.
+	 *
+	 * @param c The character to insert into the log buffer.
+	 */
 	virtual void log_add_char_to_buffer(char c)
 	{
 		if(internal_size() == internal_capacity())

@@ -4,8 +4,8 @@
 #include "Arduino.h"
 #include "ArduinoLogger.h"
 #include "SdFat.h"
-#include <EEPROM.h>
 #include "internal/circular_buffer.hpp"
+#include <EEPROM.h>
 #include <kinetis.h>
 
 /** Robust Teensy Logging Strategy with per-Module Log Levels
@@ -62,7 +62,7 @@ class TeensyRobustModuleLogger final : public LoggerBase
 		else if(fallback_to_eeprom_)
 		{
 			// Once we've filled the EEPROM range once, we will always wrap around.
-			return eeprom_full_? eeprom_log_size_ : eeprom_write_pos_;
+			return eeprom_full_ ? eeprom_log_size_ : eeprom_write_pos_;
 		}
 		else
 		{
@@ -105,9 +105,11 @@ class TeensyRobustModuleLogger final : public LoggerBase
 		fallback_to_eeprom_ = true;
 		log_reset_reason();
 
-		if((eeprom_log_address_ < EEPROM_LOG_STORAGE_ADDR) && (eeprom_log_address_ + eeprom_log_size_ >= EEPROM_LOG_STORAGE_ADDR))
+		if((eeprom_log_address_ < EEPROM_LOG_STORAGE_ADDR) &&
+		   (eeprom_log_address_ + eeprom_log_size_ >= EEPROM_LOG_STORAGE_ADDR))
 		{
-			printf("EEPROM log storage overlaps with the required file counter address. Please adjust.\n");
+			printf("EEPROM log storage overlaps with the required file counter address. Please "
+				   "adjust.\n");
 			while(1)
 			{
 			}
@@ -479,7 +481,7 @@ class TeensyRobustModuleLogger final : public LoggerBase
 	}
 
   private:
-  	/// SD Card Storage
+	/// SD Card Storage
 	SdFs* fs_ = nullptr;
 	char filename_[FILENAME_SIZE];
 	mutable FsFile file_;

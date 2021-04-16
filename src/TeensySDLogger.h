@@ -84,7 +84,6 @@ class TeensySDLogger final : public LoggerBase
 		return log_buffer_.capacity();
 	}
 
-
 	void flush_() noexcept final
 	{
 		writeBufferToSDFile();
