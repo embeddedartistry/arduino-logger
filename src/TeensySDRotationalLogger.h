@@ -138,15 +138,15 @@ class TeensySDRotationalLogger final : public LoggerBase
 		size_t tail = log_buffer_.tail();
 		const char* buffer = log_buffer_.storage();
 
-		if(head > tail)
+		if(head < tail)
 		{
 			// we have a wraparound case
-			// We will write from buffer[head] to buffer[size] in one go
+			// We will write from buffer[tail] to buffer[size] in one go
 			// Then we'll reset head to 0 so that we can write 0 to tail next
-			bytes_written = file_.write(&buffer[head], log_buffer_.capacity());
+			bytes_written = file_.write(&buffer[tail], log_buffer_.capacity() - tail);
 		}
 
-		bytes_written += file_.write(buffer, tail);
+		bytes_written += file_.write(buffer, head);
 
 		if(static_cast<size_t>(bytes_written) != log_buffer_.size())
 		{
