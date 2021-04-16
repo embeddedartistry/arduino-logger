@@ -446,8 +446,11 @@ class LoggerBase
 	/// Can be overridden if desired
 	virtual void flush() noexcept
 	{
-		overrun_occurred_ = false;
-		flush_();
+		if(internal_size() > 0)
+		{
+			overrun_occurred_ = false;
+			flush_();
+		}
 	}
 
 	/// Clear the contents of the log buffer
