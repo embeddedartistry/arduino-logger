@@ -1,9 +1,18 @@
 #ifndef ARDUINO_LOGGER_H_
 #define ARDUINO_LOGGER_H_
 
+#ifdef __XTENSA__
+#include <ets_sys.h>
+#include <internal/lambda.h>
+#else
 #include <LibPrintf.h>
+#endif
 #if !defined(__AVR__)
 #include <utility>
+#endif
+
+#ifdef __XTENSA__
+void _putchar(char c);
 #endif
 
 /// Logging is disabled
@@ -270,6 +279,26 @@ class LoggerBase
 #endif
 	}
 
+#ifdef __XTENSA__
+	/// Prints directly to the log with no extra characters added to the message.
+	void print(const char* format, ...) noexcept
+	{
+		// We need to capture this with a lambda to call log_putc,
+		// Then decay that into a function pointer for a callback
+		auto f = [this](char c) { log_putc(c); };
+		void (*callback)(char) = Lambda::ptr(f);
+
+		va_list va;
+		va_start(va, format);
+		ets_vprintf(callback, format, va);
+		va_end(va);
+
+		if(echo_)
+		{
+			ets_vprintf(ets_putc, format, va);
+		}
+	}
+#else
 	/// Prints directly to the log with no extra characters added to the message.
 	template<typename... Args>
 	void print(const Args&... args) noexcept
@@ -282,6 +311,7 @@ class LoggerBase
 			printf(args...);
 		}
 	}
+#endif
 
 	/** Add data to the log buffer
 	 *
@@ -301,7 +331,7 @@ class LoggerBase
 
 			log_customprefix();
 
-			// Send the primary log statement
+			// Send the primary log statementets_vprintf
 			print(fmt, args...);
 		}
 	}
