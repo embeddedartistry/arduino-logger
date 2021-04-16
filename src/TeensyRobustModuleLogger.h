@@ -110,9 +110,9 @@ class TeensyRobustModuleLogger final : public LoggerBase
 		{
 			printf("EEPROM log storage overlaps with the required file counter address. Please "
 				   "adjust.\n");
-		}
-		while(1)
-		{
+			while(1)
+			{
+			}
 		}
 	}
 
@@ -153,6 +153,15 @@ class TeensyRobustModuleLogger final : public LoggerBase
 	log_level_e level(unsigned module_id) const noexcept
 	{
 		return module_levels_[module_id];
+	}
+
+	/// Set the log level for ALL modules
+	/// We need to forward this version to the base class version
+	/// to prevent us from calling level(module_id) when we try to set
+	/// the global log level
+	log_level_e level(log_level_e l) noexcept
+	{
+		return LoggerBase::level(l);
 	}
 
 	/** Set the maximum log level (filtering) for the specified module
@@ -302,15 +311,12 @@ class TeensyRobustModuleLogger final : public LoggerBase
 			// and then we reset the log buffer
 			while(!log_buffer_.empty())
 			{
-				EEPROM.write(eeprom_log_address_ + eeprom_write_pos_, log_buffer_.get());
-				eeprom_write_pos_++;
-				if(eeprom_write_pos_ == eeprom_log_size_)
-				{
-					// Once we've wrapped around, we're *always* full.
-					eeprom_full_ = true;
-					eeprom_write_pos_ = 0;
-				}
+				EEPROMWriteAndIncrement(log_buffer_.get());
 			}
+			// End with a NULL terminator to ensure we clear out any OLD log data
+			// stored in the EEPROM
+			EEPROMWriteAndIncrement(0x0);
+
 			log_buffer_.reset();
 		}
 		else
@@ -329,6 +335,18 @@ class TeensyRobustModuleLogger final : public LoggerBase
 	}
 
   private:
+	void EEPROMWriteAndIncrement(char c)
+	{
+		EEPROM.write(eeprom_log_address_ + eeprom_write_pos_, c);
+		eeprom_write_pos_++;
+		if(eeprom_write_pos_ == eeprom_log_size_)
+		{
+			// Once we've wrapped around, we're *always* full.
+			eeprom_full_ = true;
+			eeprom_write_pos_ = 0;
+		}
+	}
+
 	void errorHalt(const char* msg)
 	{
 		printf("Error: %s\n", msg);
@@ -361,15 +379,19 @@ class TeensyRobustModuleLogger final : public LoggerBase
 		size_t tail = log_buffer_.tail();
 		const char* buffer = log_buffer_.storage();
 
-		if(head < tail)
+		if((head < tail) || ((tail > 0) && (log_buffer_.size() == log_buffer_.capacity())))
 		{
 			// we have a wraparound case
 			// We will write from buffer[tail] to buffer[size] in one go
 			// Then we'll reset head to 0 so that we can write 0 to tail next
 			bytes_written = file_.write(&buffer[tail], log_buffer_.capacity() - tail);
+			bytes_written += file_.write(buffer, head);
 		}
-
-		bytes_written += file_.write(buffer, head);
+		else
+		{
+			// Write from tail position and send the specified number of bytes
+			bytes_written = file_.write(&buffer[tail], log_buffer_.size());
+		}
 
 		if(static_cast<size_t>(bytes_written) != log_buffer_.size())
 		{
