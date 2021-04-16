@@ -404,6 +404,7 @@ logecho(true); // enables echoing via printf()
   - Demonstrates the use of the TeensySDRotationalLogger on a Teensy board using SDIO in FIFO mode. This logger will detect the reboot reason and log that to the file when `begin()` is called. Every time the board resets, a new log file will be created. The log files will increment in count until they reach 254, then they reset back to 1.
 * [TeensyRobustModuleLogger](examples/TeensyRobustModuleLogger)
   - Demonstrates the use of a TeensyRobustModuleLogger on a Teensy board using SDIO in FIFO Mode. This logger can use the SD card, the EEPROM, or the circular buffer in RAM. This logger will detect the reboot reason and log that to the file when `begin()` is called. With the SD card, every time the board resets, a new log file will be created. The log files will increment in count until they reach 254, then they reset back to 1.
+  - By default, this example also disables auto-flush behavior, and it demonstrates overrun detection logic in the primary loop.
 * [AVRSDRotationalLogger](examples/AVRSDRotationalLogger)
   - Demonstrates the use of the AVRSDRotationalLogger on an ATMega board which has a Wiznet W5500 Ethernet board featuring an SD card slot. This logger will detect the reboot reason and log that to the file when `begin()` is called. Every time the board resets, a new log file will be created. The log files will increment in count until they reach 254, then they reset back to 1.
 * [Circular Log Buffer: Global Instance Interface](examples/CircularLogBuffer_GlobalInst)
