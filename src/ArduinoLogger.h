@@ -444,9 +444,13 @@ class LoggerBase
 	/// Flush the buffered log contents to the target output stream
 	/// Wrapper for flush_ that resets the overrun_occurred_ flag
 	/// Can be overridden if desired
-	virtual void flush() noexcept {
-		overrun_occurred_ = false;
-		flush_();
+	virtual void flush() noexcept
+	{
+		if(internal_size() > 0)
+		{
+			overrun_occurred_ = false;
+			flush_();
+		}
 	}
 
 	/// Clear the contents of the log buffer
