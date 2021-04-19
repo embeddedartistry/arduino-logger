@@ -164,6 +164,13 @@ class TeensyRobustModuleLogger final : public LoggerBase
 		return LoggerBase::level(l);
 	}
 
+	/// Get the log level for ALL modules
+	/// We need to forward this version to the base class version
+	log_level_e level() const noexcept
+	{
+		return LoggerBase::level();
+	}
+
 	/** Set the maximum log level (filtering) for the specified module
 	 *
 	 * @param module_id The ID for the corresponding module

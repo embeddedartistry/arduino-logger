@@ -115,6 +115,22 @@ class TeensySDRotationalModuleLogger final : public LoggerBase
 		return module_levels_[module_id];
 	}
 
+	/// Set the log level for ALL modules
+	/// We need to forward this version to the base class version
+	/// to prevent us from calling level(module_id) when we try to set
+	/// the global log level
+	log_level_e level(log_level_e l) noexcept
+	{
+		return LoggerBase::level(l);
+	}
+
+	/// Get the log level for ALL modules
+	/// We need to forward this version to the base class version
+	log_level_e level() const noexcept
+	{
+		return LoggerBase::level();
+	}
+
 	/// The following overrides should be used to log with module IDs
 
 	template<typename... Args>

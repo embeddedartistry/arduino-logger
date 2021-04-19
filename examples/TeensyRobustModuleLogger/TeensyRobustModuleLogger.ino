@@ -76,6 +76,9 @@ void setup()
   Log.level(module::LOOP, log_level_e::info);
   Log.echo(true); // log calls will also be printed over Serial
 
+  printf("Configured log levels are:\nSystem: %d, SETUP: %d, LOOP: %d\n",
+    Log.level(), Log.level(module::SETUP), Log.level(module::LOOP));
+
   // For demonstration purposes, we'll turn off auto-flush behavior
   // This will trigger overflow conditions in the loop() due to our flush
   // iteration count - we wait too long between flushes.
