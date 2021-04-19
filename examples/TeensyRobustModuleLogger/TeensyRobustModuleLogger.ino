@@ -44,7 +44,7 @@ static void readEEPROMLogBuffer()
 void setup()
 {
   Serial.begin(115200);
-  while(!Serial) delay(10); 
+  while(!Serial) delay(10);
   // wait for Arduino Serial Monitor (native USB boards)
 
   // We'll check the EEPROM log buffer contents on boot.
@@ -65,7 +65,7 @@ void setup()
     Log.level(log_level_e::error);
     Log.error(module::SETUP, "Could not initialize SD card\n");
     Log.begin(EEPROM_LOG_STORAGE_ADDR, EEPROM_LOG_STORAGE_SIZE);
-    /// If you comment out the Log.begin() call above and use the one below instead, 
+    /// If you comment out the Log.begin() call above and use the one below instead,
     /// you will have a circular log buffer stored in memory and flushed to the serial console
     /// When using the circular log buffer, it is likely not necessary to reduce the log levels!
     // Log.begin();
@@ -97,10 +97,6 @@ void loop()
   if(Log.has_overrun())
   {
     // Let's flush what we have so far
-    Log.flush();
-    // Indicate an overrun occurred
-    Log.error(module::LOOP, "--- LOG OVERRUN DETECTED ---\n");
-    // We'll flush again to make sure this gets logged without being overwritten
     Log.flush();
   }
 

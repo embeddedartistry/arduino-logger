@@ -448,8 +448,13 @@ class LoggerBase
 	{
 		if(internal_size() > 0)
 		{
-			overrun_occurred_ = false;
 			flush_();
+			if(overrun_occurred_)
+			{
+				critical("---Log buffer overrun detected---\n");
+				flush_();
+			}
+			overrun_occurred_ = false;
 		}
 	}
 
