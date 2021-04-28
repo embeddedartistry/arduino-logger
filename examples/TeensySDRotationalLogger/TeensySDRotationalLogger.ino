@@ -1,3 +1,5 @@
+#define NO_PRAGMA_MARK
+
 #include "TeensySDRotationalLogger.h"
 
 static TeensySDRotationalLogger Log;

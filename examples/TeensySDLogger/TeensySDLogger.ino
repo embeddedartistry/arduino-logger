@@ -1,3 +1,5 @@
+#define NO_PRAGMA_MARK
+
 #include "TeensySDLogger.h"
 
 static TeensySDLogger Log;
