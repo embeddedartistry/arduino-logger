@@ -74,7 +74,9 @@
 	}
 #endif
 
+#ifndef NO_PRAGMA_MARK
 #pragma mark - Short File Name Macro -
+#endif
 
 using cstr = const char* const;
 
@@ -96,7 +98,9 @@ constexpr cstr past_last_slash(cstr str)
 		sf__;                                           \
 	})
 
+#ifndef NO_PRAGMA_MARK
 #pragma mark - Tracing Macros -
+#endif
 
 #define STRINGPASTE(x) #x
 #define TOSTRING(x) STRINGPASTE(x)
@@ -109,7 +113,9 @@ constexpr cstr past_last_slash(cstr str)
 #define FUNC() __FUNCTION__
 #define PRETTY_FUNC() __PRETTY_FUNCTION__
 
+#ifndef NO_PRAGMA_MARK
 #pragma mark - Logging Class -
+#endif
 
 enum log_level_e
 {
