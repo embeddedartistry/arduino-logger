@@ -1,3 +1,5 @@
+#define NO_PRAGMA_MARK
+
 #include "TeensyRobustModuleLogger.h"
 
 // NOTE that module APIs are not routed to the global instance manager,
