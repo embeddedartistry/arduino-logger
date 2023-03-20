@@ -26,9 +26,9 @@ project('Arduino SDK Logger',
 # Identify Compiler(s) #
 ########################
 
-subdir('build/compiler')
-subdir('build/compiler/c')
-subdir('build/compiler/cpp')
+subdir('meson/compiler')
+subdir('meson/compiler/c')
+subdir('meson/compiler/cpp')
 
 if get_option('enable-werror') == true
 	desired_common_compile_flags += '-Werror'
@@ -44,7 +44,7 @@ compile_settings_list = [
 ]
 
 # Process the compilation flags
-subdir('build/compiler/check-and-apply-flags')
+subdir('meson/compiler/check-and-apply-flags')
 
 arduinoprintf = subproject('arduino-printf')
 libPrintf_test_dep = arduinoprintf.get_variable('libPrintf_test_dep')
@@ -157,7 +157,7 @@ cppcheck_paths = [
 	meson.source_root() / 'src'
 ]
 
-subdir('build/analysis/clang-tidy')
-subdir('build/analysis/complexity')
-subdir('build/analysis/cppcheck')
-subdir('build/format')
+subdir('meson/analysis/clang-tidy')
+subdir('meson/analysis/complexity')
+subdir('meson/analysis/cppcheck')
+subdir('meson/format')
