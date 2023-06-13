@@ -269,7 +269,7 @@ class LoggerBase
 
 	/** Check for a buffer overrun condition.
 	 *
-	 * @returns a boolean indicating whether or not an overrun condition has occured
+	 * @returns a boolean indicating whether or not an overrun condition has occurred
 	 *	since the last time flush() was called. If `true`, this indicates that data
 	 * 	has been lost from the log buffer.
 	 */
