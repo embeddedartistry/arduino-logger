@@ -149,12 +149,12 @@ endif
 ############################
 
 clangformat_excludes = [
-	meson.source_root() / 'test/catch',
-	meson.source_root() / 'test/sketch',
+	meson.project_source_root() / 'test/catch',
+	meson.project_source_root() / 'test/sketch',
 ]
 
 cppcheck_paths = [
-	meson.source_root() / 'src'
+	meson.project_source_root() / 'src'
 ]
 
 subdir('meson/analysis/clang-tidy')
